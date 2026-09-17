@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Time Tracker</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+</head>
+
+<body>
+
+<!-- =====================================================
+     AUTH SCREEN
+===================================================== -->
+
+<div id="authScreen" class="auth-screen">
+
+    <div class="auth-card">
+
+        <div class="auth-logo">
+            ⏱
+        </div>
+
+        <h1>Time Tracker</h1>
+
+        <p class="auth-subtitle">
+            Track your work, tasks, and attendance.
+        </p>
+
+
+        <!-- LOGIN -->
+
+        <div id="loginView">
+
+            <h2>Welcome Back</h2>
+
+            <p class="form-subtitle">
+                Sign in to continue
+            </p>
+
+            <form id="loginForm">
+
+                <div class="form-group">
+
+                    <label for="loginEmail">
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="loginEmail"
+                        placeholder="Enter your email"
+                        autocomplete="email"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="loginPassword">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="loginPassword"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="primary-btn auth-btn"
+                >
+                    Login
+                </button>
+
+            </form>
+
+
+            <button
+                type="button"
+                id="forgotPasswordBtn"
+                class="text-btn"
+            >
+                Forgot Password?
+            </button>
+
+
+            <div class="auth-switch">
+
+                <span>
+                    Don't have an account?
+                </span>
+
+                <button
+                    type="button"
+                    id="showRegisterBtn"
+                    class="link-btn"
+                >
+                    Create Account
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- REGISTER -->
+
+        <div
+            id="registerView"
+            class="hidden"
+        >
+
+            <h2>Create Account</h2>
+
+            <p class="form-subtitle">
+                Create your personal account
+            </p>
+
+
+            <form id="registerForm">
+
+                <div class="form-row">
+
+                    <div class="form-group">
+
+                        <label for="registerFirstName">
+                            First Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="registerFirstName"
+                            placeholder="First name"
+                            autocomplete="given-name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="registerLastName">
+                            Last Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="registerLastName"
+                            placeholder="Last name"
+                            autocomplete="family-name"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="registerEmail">
+                        Email
+                    </label>
+
+                    <input
+                        type="email"
+                        id="registerEmail"
+                        placeholder="Enter your email"
+                        autocomplete="email"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="registerPassword">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="registerPassword"
+                        placeholder="At least 6 characters"
+                        autocomplete="new-password"
+                        minlength="6"
+                        required
+                    >
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="primary-btn auth-btn"
+                >
+                    Create Account
+                </button>
+
+            </form>
+
+
+            <div class="auth-switch">
+
+                <span>
+                    Already have an account?
+                </span>
+
+                <button
+                    type="button"
+                    id="showLoginBtn"
+                    class="link-btn"
+                >
+                    Login
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     APPLICATION
+===================================================== -->
+
+<div
+    id="appScreen"
+    class="app-screen hidden"
+>
+
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-header">
+
+            <div class="brand-icon">
+                ⏱
+            </div>
+
+            <div>
+                <div class="brand-name">
+                    Time Tracker
+                </div>
+
+                <div class="brand-small">
+                    Work Management
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- USER -->
+
+        <div class="sidebar-user">
+
+            <div
+                id="userAvatar"
+                class="user-avatar"
+            >
+                U
+            </div>
+
+            <div class="user-info">
+
+                <strong id="sidebarUserName">
+                    User
+                </strong>
+
+                <span id="sidebarUserEmail">
+                    user@email.com
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- NAVIGATION -->
+
+        <nav class="sidebar-nav">
+
+            <button
+                type="button"
+                class="nav-btn active"
+                data-section="dashboard"
+            >
+                <span>📊</span>
+                Dashboard
+            </button>
+
+
+            <button
+                type="button"
+                class="nav-btn"
+                data-section="tasks"
+            >
+                <span>📝</span>
+                Tasks
+            </button>
+
+
+            <button
+                type="button"
+                class="nav-btn"
+                data-section="reports"
+            >
+                <span>📈</span>
+                Reports
+            </button>
+
+
+            <button
+                type="button"
+                class="nav-btn"
+                data-section="settings"
+            >
+                <span>⚙️</span>
+                Settings
+            </button>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <button
+                type="button"
+                id="logoutBtn"
+                class="logout-btn"
+            >
+                🚪 Logout
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main-content">
+
+
+        <!-- TOP BAR -->
+
+        <header class="topbar">
+
+            <div>
+
+                <h1 id="pageTitle">
+                    Dashboard
+                </h1>
+
+                <p id="pageSubtitle">
+                    Track your work and attendance
+                </p>
+
+            </div>
+
+
+            <div class="topbar-actions">
+
+                <button
+                    type="button"
+                    id="themeToggleBtn"
+                    class="icon-btn"
+                    title="Toggle theme"
+                >
+                    🌙
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             DASHBOARD
+        ================================================= -->
+
+        <section
+            id="dashboardSection"
+            class="page-section active"
+        >
+
+
+            <!-- ATTENDANCE -->
+
+            <div class="section-heading">
+
+                <div>
+
+                    <h2>
+                        Today's Attendance
+                    </h2>
+
+                    <p id="attendanceDate">
+                        Today
+                    </p>
+
+                </div>
+
+                <span
+                    id="attendanceStatus"
+                    class="status-badge ready"
+                >
+                    Not started
+                </span>
+
+            </div>
+
+
+            <div class="attendance-card">
+
+
+                <div class="attendance-item">
+
+                    <span class="attendance-label">
+                        🟢 Time In
+                    </span>
+
+                    <strong id="timeInDisplay">
+                        --:--
+                    </strong>
+
+                </div>
+
+
+                <div class="attendance-item">
+
+                    <span class="attendance-label">
+                        🔴 Time Out
+                    </span>
+
+                    <strong id="timeOutDisplay">
+                        --:--
+                    </strong>
+
+                </div>
+
+
+                <div class="attendance-item">
+
+                    <span class="attendance-label">
+                        ⏱ Total Worked
+                    </span>
+
+                    <strong id="totalWorkedDisplay">
+                        0 hrs 00 min
+                    </strong>
+
+                </div>
+
+
+                <div class="attendance-actions">
+
+                    <button
+                        type="button"
+                        id="timeInBtn"
+                        class="time-in-btn"
+                    >
+                        🟢 Time In
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="timeOutBtn"
+                        class="time-out-btn"
+                        disabled
+                    >
+                        🔴 Time Out
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- STAT CARDS -->
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        📝
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Today's Tasks
+                        </span>
+
+                        <strong id="todayTasksCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ✅
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Completed Tasks
+                        </span>
+
+                        <strong id="completedTasksCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ⏱
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Today's Task Time
+                        </span>
+
+                        <strong id="todayTaskTime">
+                            0 hrs 00 min
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        📌
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Status
+                        </span>
+
+                        <strong id="dashboardStatus">
+                            Ready
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- RECENT TASKS -->
+
+            <div class="content-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            Recent Tasks
+                        </h2>
+
+                        <p>
+                            Your latest work
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="viewAllTasksBtn"
+                        class="secondary-btn"
+                    >
+                        View All
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="dashboardTasksList"
+                    class="tasks-list"
+                >
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             TASKS
+        ================================================= -->
+
+        <section
+            id="tasksSection"
+            class="page-section"
+        >
+
+            <div class="section-heading">
+
+                <div>
+
+                    <h2>
+                        Tasks
+                    </h2>
+
+                    <p>
+                        Manage and track your work
+                    </p>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="newTaskBtn"
+                    class="primary-btn"
+                >
+                    + New Task
+                </button>
+
+            </div>
+
+
+            <div class="task-controls">
+
+                <input
+                    type="search"
+                    id="taskSearch"
+                    placeholder="Search tasks..."
+                >
+
+
+                <select id="taskFilter">
+
+                    <option value="all">
+                        All Tasks
+                    </option>
+
+                    <option value="today">
+                        Today
+                    </option>
+
+                    <option value="pending">
+                        Pending
+                    </option>
+
+                    <option value="completed">
+                        Completed
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div
+                id="tasksList"
+                class="tasks-list"
+            >
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             REPORTS
+        ================================================= -->
+
+        <section
+            id="reportsSection"
+            class="page-section"
+        >
+
+            <div class="section-heading">
+
+                <div>
+
+                    <h2>
+                        Reports
+                    </h2>
+
+                    <p>
+                        Review your work activity
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        📝
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Total Tasks
+                        </span>
+
+                        <strong id="reportTotalTasks">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ✅
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Completed
+                        </span>
+
+                        <strong id="reportCompletedTasks">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        ⏱
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Total Time
+                        </span>
+
+                        <strong id="reportTotalTime">
+                            0 hrs 00 min
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="content-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <h2>
+                            Task Report
+                        </h2>
+
+                        <p>
+                            Overview of recorded tasks
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Task
+                                </th>
+
+                                <th>
+                                    Category
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Time
+                                </th>
+
+                                <th>
+                                    Date
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody
+                            id="reportsTableBody"
+                        >
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SETTINGS
+        ================================================= -->
+
+        <section
+            id="settingsSection"
+            class="page-section"
+        >
+
+            <div class="section-heading">
+
+                <div>
+
+                    <h2>
+                        Settings
+                    </h2>
+
+                    <p>
+                        Manage your account and preferences
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="settings-grid">
+
+
+                <div class="content-card">
+
+                    <h2>
+                        Account
+                    </h2>
+
+                    <div class="profile-settings">
+
+                        <div
+                            id="settingsUserAvatar"
+                            class="large-avatar"
+                        >
+                            U
+                        </div>
+
+                        <div>
+
+                            <strong
+                                id="settingsUserName"
+                            >
+                                User
+                            </strong>
+
+                            <span
+                                id="settingsUserEmail"
+                            >
+                                user@email.com
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="content-card">
+
+                    <h2>
+                        Appearance
+                    </h2>
+
+                    <p>
+                        Change between light and dark mode.
+                    </p>
+
+                    <button
+                        type="button"
+                        id="settingsThemeBtn"
+                        class="secondary-btn"
+                    >
+                        Switch to Dark Mode
+                    </button>
+
+                </div>
+
+
+                <div class="content-card danger-card">
+
+                    <h2>
+                        Delete Account
+                    </h2>
+
+                    <p>
+                        Delete your account and all locally
+                        stored tasks and attendance data.
+                    </p>
+
+                    <button
+                        type="button"
+                        id="deleteAccountBtn"
+                        class="danger-btn"
+                    >
+                        Delete Account
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- =====================================================
+     TASK MODAL
+===================================================== -->
+
+<div
+    id="taskModal"
+    class="modal hidden"
+>
+
+    <div class="modal-card">
+
+        <div class="modal-header">
+
+            <div>
+
+                <h2 id="taskModalTitle">
+                    New Task
+                </h2>
+
+                <p>
+                    Create and track your task
+                </p>
+
+            </div>
+
+            <button
+                type="button"
+                id="closeTaskModalBtn"
+                class="close-btn"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="taskForm">
+
+            <input
+                type="hidden"
+                id="editingTaskId"
+            >
+
+
+            <div class="form-group">
+
+                <label for="taskTitle">
+                    Task Title
+                </label>
+
+                <input
+                    type="text"
+                    id="taskTitle"
+                    placeholder="Enter task title"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="taskDescription">
+                    Description
+                </label>
+
+                <textarea
+                    id="taskDescription"
+                    placeholder="Describe the task..."
+                    rows="4"
+                ></textarea>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="taskCategory">
+                    Category
+                </label>
+
+                <select id="taskCategory">
+
+                    <option value="SEO">
+                        SEO
+                    </option>
+
+                    <option value="Content">
+                        Content
+                    </option>
+
+                    <option value="Research">
+                        Research
+                    </option>
+
+                    <option value="Admin">
+                        Admin
+                    </option>
+
+                    <option value="Other">
+                        Other
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- TIMER -->
+
+            <div class="timer-box">
+
+                <div class="timer-status">
+
+                    <span>
+                        Task Timer
+                    </span>
+
+                    <strong id="timerStatus">
+                        Ready
+                    </strong>
+
+                </div>
+
+
+                <div
+                    id="liveTimerDisplay"
+                    class="live-timer"
+                >
+                    00:00:00
+                </div>
+
+
+                <div class="timer-actions">
+
+                    <button
+                        type="button"
+                        id="startTimerBtn"
+                        class="timer-start"
+                    >
+                        ▶ Start
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="pauseTimerBtn"
+                        class="timer-pause"
+                        disabled
+                    >
+                        ⏸ Pause
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="breakBtn"
+                        class="timer-break"
+                        disabled
+                    >
+                        ☕ Break
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="stopTimerBtn"
+                        class="timer-stop"
+                        disabled
+                    >
+                        ⏹ Stop
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- MANUAL TIME -->
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="timeHours">
+                        Hours
+                    </label>
+
+                    <input
+                        type="number"
+                        id="timeHours"
+                        min="0"
+                        value="0"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="timeMinutes">
+                        Minutes
+                    </label>
+
+                    <input
+                        type="number"
+                        id="timeMinutes"
+                        min="0"
+                        max="59"
+                        value="0"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    id="cancelTaskBtn"
+                    class="secondary-btn"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+                    Save Task
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     TOAST
+===================================================== -->
+
+<div
+    id="toastContainer"
+    class="toast-container"
+></div>
+
+
+<script src="script.js"></script>
+
+</body>
+</html>
