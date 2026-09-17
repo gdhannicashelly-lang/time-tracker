@@ -2,48 +2,49 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
 
+    <meta
+        name="description"
+        content="Firebase Time Tracker for employee attendance, tasks and daily reports."
+    >
+
     <title>Time Tracker</title>
 
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<!-- =====================================================
+<!-- =========================================================
      AUTH SCREEN
-===================================================== -->
+========================================================= -->
 
 <div id="authScreen" class="auth-screen">
 
     <div class="auth-card">
 
         <div class="auth-logo">
-            ⏱
+            <div class="logo-icon">⏱</div>
+
+            <div>
+                <h1>Time Tracker</h1>
+                <p>Work & Attendance Management</p>
+            </div>
         </div>
-
-        <h1>Time Tracker</h1>
-
-        <p class="auth-subtitle">
-            Track your work, tasks, and attendance.
-        </p>
-
 
         <!-- LOGIN -->
 
-        <div id="loginView">
+        <div id="loginFormContainer">
 
             <h2>Welcome Back</h2>
 
-            <p class="form-subtitle">
-                Sign in to continue
+            <p class="auth-description">
+                Sign in to manage your attendance, tasks and reports.
             </p>
 
             <form id="loginForm">
@@ -57,13 +58,12 @@
                     <input
                         type="email"
                         id="loginEmail"
-                        placeholder="Enter your email"
+                        placeholder="you@example.com"
                         autocomplete="email"
                         required
                     >
 
                 </div>
-
 
                 <div class="form-group">
 
@@ -81,38 +81,32 @@
 
                 </div>
 
-
                 <button
                     type="submit"
-                    class="primary-btn auth-btn"
+                    class="primary-btn full-width"
+                    id="loginBtn"
                 >
-                    Login
+                    Sign In
                 </button>
 
             </form>
 
-
-            <button
-                type="button"
-                id="forgotPasswordBtn"
-                class="text-btn"
-            >
-                Forgot Password?
-            </button>
-
-
-            <div class="auth-switch">
-
-                <span>
-                    Don't have an account?
-                </span>
+            <div class="auth-links">
 
                 <button
                     type="button"
                     id="showRegisterBtn"
-                    class="link-btn"
+                    class="text-btn"
                 >
                     Create Account
+                </button>
+
+                <button
+                    type="button"
+                    id="forgotPasswordBtn"
+                    class="text-btn"
+                >
+                    Forgot Password?
                 </button>
 
             </div>
@@ -123,16 +117,15 @@
         <!-- REGISTER -->
 
         <div
-            id="registerView"
+            id="registerFormContainer"
             class="hidden"
         >
 
             <h2>Create Account</h2>
 
-            <p class="form-subtitle">
-                Create your personal account
+            <p class="auth-description">
+                Create your employee account.
             </p>
-
 
             <form id="registerForm">
 
@@ -148,12 +141,10 @@
                             type="text"
                             id="registerFirstName"
                             placeholder="First name"
-                            autocomplete="given-name"
                             required
                         >
 
                     </div>
-
 
                     <div class="form-group">
 
@@ -165,14 +156,12 @@
                             type="text"
                             id="registerLastName"
                             placeholder="Last name"
-                            autocomplete="family-name"
                             required
                         >
 
                     </div>
 
                 </div>
-
 
                 <div class="form-group">
 
@@ -183,13 +172,12 @@
                     <input
                         type="email"
                         id="registerEmail"
-                        placeholder="Enter your email"
+                        placeholder="you@example.com"
                         autocomplete="email"
                         required
                     >
 
                 </div>
-
 
                 <div class="form-group">
 
@@ -200,7 +188,7 @@
                     <input
                         type="password"
                         id="registerPassword"
-                        placeholder="At least 6 characters"
+                        placeholder="Minimum 6 characters"
                         autocomplete="new-password"
                         minlength="6"
                         required
@@ -208,29 +196,40 @@
 
                 </div>
 
+                <div class="form-group">
+
+                    <label for="registerConfirmPassword">
+                        Confirm Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="registerConfirmPassword"
+                        placeholder="Repeat password"
+                        autocomplete="new-password"
+                        minlength="6"
+                        required
+                    >
+
+                </div>
 
                 <button
                     type="submit"
-                    class="primary-btn auth-btn"
+                    class="primary-btn full-width"
                 >
                     Create Account
                 </button>
 
             </form>
 
-
-            <div class="auth-switch">
-
-                <span>
-                    Already have an account?
-                </span>
+            <div class="auth-links">
 
                 <button
                     type="button"
                     id="showLoginBtn"
-                    class="link-btn"
+                    class="text-btn"
                 >
-                    Login
+                    Already have an account? Sign In
                 </button>
 
             </div>
@@ -242,58 +241,57 @@
 </div>
 
 
-<!-- =====================================================
-     APPLICATION
-===================================================== -->
+<!-- =========================================================
+     MAIN APPLICATION
+========================================================= -->
 
 <div
     id="appScreen"
     class="app-screen hidden"
 >
 
-
     <!-- SIDEBAR -->
 
     <aside class="sidebar">
 
-        <div class="sidebar-header">
+        <div class="sidebar-brand">
 
-            <div class="brand-icon">
+            <div class="logo-icon">
                 ⏱
             </div>
 
             <div>
-                <div class="brand-name">
-                    Time Tracker
-                </div>
-
-                <div class="brand-small">
-                    Work Management
-                </div>
+                <strong>Time Tracker</strong>
+                <small>Work Management</small>
             </div>
 
         </div>
 
 
-        <!-- USER -->
-
         <div class="sidebar-user">
 
             <div
-                id="userAvatar"
-                class="user-avatar"
+                class="avatar"
+                id="sidebarAvatar"
             >
                 U
             </div>
 
-            <div class="user-info">
+            <div class="sidebar-user-info">
 
                 <strong id="sidebarUserName">
                     User
                 </strong>
 
                 <span id="sidebarUserEmail">
-                    user@email.com
+                    user@example.com
+                </span>
+
+                <span
+                    id="sidebarUserRole"
+                    class="user-role"
+                >
+                    Employee
                 </span>
 
             </div>
@@ -306,7 +304,6 @@
         <nav class="sidebar-nav">
 
             <button
-                type="button"
                 class="nav-btn active"
                 data-section="dashboard"
             >
@@ -314,9 +311,7 @@
                 Dashboard
             </button>
 
-
             <button
-                type="button"
                 class="nav-btn"
                 data-section="tasks"
             >
@@ -324,9 +319,15 @@
                 Tasks
             </button>
 
+            <button
+                class="nav-btn"
+                data-section="dailyReports"
+            >
+                <span>📅</span>
+                Daily Reports
+            </button>
 
             <button
-                type="button"
                 class="nav-btn"
                 data-section="reports"
             >
@@ -334,9 +335,25 @@
                 Reports
             </button>
 
+            <button
+                id="managerNavBtn"
+                class="nav-btn hidden"
+                data-section="manager"
+            >
+                <span>👨‍💼</span>
+                Manager
+            </button>
 
             <button
-                type="button"
+                id="adminNavBtn"
+                class="nav-btn hidden"
+                data-section="admin"
+            >
+                <span>🛡️</span>
+                Admin
+            </button>
+
+            <button
                 class="nav-btn"
                 data-section="settings"
             >
@@ -350,11 +367,19 @@
         <div class="sidebar-bottom">
 
             <button
-                type="button"
-                id="logoutBtn"
-                class="logout-btn"
+                id="themeBtn"
+                class="sidebar-action"
             >
-                🚪 Logout
+                🌙
+                <span>Theme</span>
+            </button>
+
+            <button
+                id="logoutBtn"
+                class="sidebar-action logout"
+            >
+                🚪
+                <span>Logout</span>
             </button>
 
         </div>
@@ -362,137 +387,98 @@
     </aside>
 
 
-    <!-- MAIN -->
+    <!-- MAIN CONTENT -->
 
     <main class="main-content">
 
+        <!-- MOBILE HEADER -->
 
-        <!-- TOP BAR -->
+        <header class="mobile-header">
 
-        <header class="topbar">
-
-            <div>
-
-                <h1 id="pageTitle">
-                    Dashboard
-                </h1>
-
-                <p id="pageSubtitle">
-                    Track your work and attendance
-                </p>
-
+            <div class="mobile-brand">
+                ⏱ Time Tracker
             </div>
 
-
-            <div class="topbar-actions">
-
-                <button
-                    type="button"
-                    id="themeToggleBtn"
-                    class="icon-btn"
-                    title="Toggle theme"
-                >
-                    🌙
-                </button>
-
-            </div>
+            <button
+                id="mobileMenuBtn"
+                class="icon-btn"
+            >
+                ☰
+            </button>
 
         </header>
 
 
         <!-- =================================================
              DASHBOARD
-        ================================================= -->
+        ================================================== -->
 
         <section
             id="dashboardSection"
             class="page-section active"
         >
 
-
-            <!-- ATTENDANCE -->
-
             <div class="section-heading">
 
                 <div>
 
-                    <h2>
-                        Today's Attendance
-                    </h2>
+                    <h2>Dashboard</h2>
 
-                    <p id="attendanceDate">
-                        Today
+                    <p id="dashboardGreeting">
+                        Welcome back!
                     </p>
 
                 </div>
 
-                <span
-                    id="attendanceStatus"
-                    class="status-badge ready"
+                <div
+                    class="current-date"
+                    id="currentDate"
                 >
-                    Not started
-                </span>
+                </div>
 
             </div>
 
 
+            <!-- ATTENDANCE -->
+
             <div class="attendance-card">
 
+                <div>
 
-                <div class="attendance-item">
-
-                    <span class="attendance-label">
-                        🟢 Time In
+                    <span class="card-label">
+                        Today's Attendance
                     </span>
 
-                    <strong id="timeInDisplay">
-                        --:--
+                    <strong
+                        id="attendanceStatus"
+                        class="attendance-status"
+                    >
+                        Not Timed In
                     </strong>
 
-                </div>
-
-
-                <div class="attendance-item">
-
-                    <span class="attendance-label">
-                        🔴 Time Out
-                    </span>
-
-                    <strong id="timeOutDisplay">
-                        --:--
-                    </strong>
+                    <div
+                        id="attendanceTimes"
+                        class="attendance-times"
+                    >
+                        Time In: —
+                        <br>
+                        Time Out: —
+                    </div>
 
                 </div>
-
-
-                <div class="attendance-item">
-
-                    <span class="attendance-label">
-                        ⏱ Total Worked
-                    </span>
-
-                    <strong id="totalWorkedDisplay">
-                        0 hrs 00 min
-                    </strong>
-
-                </div>
-
 
                 <div class="attendance-actions">
 
                     <button
-                        type="button"
                         id="timeInBtn"
-                        class="time-in-btn"
+                        class="success-btn"
                     >
                         🟢 Time In
                     </button>
 
-
                     <button
-                        type="button"
                         id="timeOutBtn"
-                        class="time-out-btn"
+                        class="danger-btn"
                         disabled
                     >
                         🔴 Time Out
@@ -503,51 +489,9 @@
             </div>
 
 
-            <!-- STAT CARDS -->
+            <!-- STATS -->
 
             <div class="stats-grid">
-
-                <div class="stat-card">
-
-                    <div class="stat-icon">
-                        📝
-                    </div>
-
-                    <div>
-
-                        <span>
-                            Today's Tasks
-                        </span>
-
-                        <strong id="todayTasksCount">
-                            0
-                        </strong>
-
-                    </div>
-
-                </div>
-
-
-                <div class="stat-card">
-
-                    <div class="stat-icon">
-                        ✅
-                    </div>
-
-                    <div>
-
-                        <span>
-                            Completed Tasks
-                        </span>
-
-                        <strong id="completedTasksCount">
-                            0
-                        </strong>
-
-                    </div>
-
-                </div>
-
 
                 <div class="stat-card">
 
@@ -556,15 +500,11 @@
                     </div>
 
                     <div>
+                        <span>Today's Hours</span>
 
-                        <span>
-                            Today's Task Time
-                        </span>
-
-                        <strong id="todayTaskTime">
+                        <strong id="todayHours">
                             0 hrs 00 min
                         </strong>
-
                     </div>
 
                 </div>
@@ -573,19 +513,49 @@
                 <div class="stat-card">
 
                     <div class="stat-icon">
-                        📌
+                        📝
                     </div>
 
                     <div>
+                        <span>Today's Tasks</span>
 
-                        <span>
-                            Status
-                        </span>
-
-                        <strong id="dashboardStatus">
-                            Ready
+                        <strong id="todayTaskCount">
+                            0
                         </strong>
+                    </div>
 
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        📅
+                    </div>
+
+                    <div>
+                        <span>Daily Reports</span>
+
+                        <strong id="todayReportCount">
+                            0
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        📊
+                    </div>
+
+                    <div>
+                        <span>This Month</span>
+
+                        <strong id="monthHours">
+                            0 hrs 00 min
+                        </strong>
                     </div>
 
                 </div>
@@ -597,35 +567,30 @@
 
             <div class="content-card">
 
-                <div class="card-header">
+                <div class="card-heading">
 
                     <div>
 
-                        <h2>
-                            Recent Tasks
-                        </h2>
+                        <h2>Recent Tasks</h2>
 
                         <p>
-                            Your latest work
+                            Your latest completed work.
                         </p>
 
                     </div>
 
-
                     <button
-                        type="button"
-                        id="viewAllTasksBtn"
                         class="secondary-btn"
+                        data-section="tasks"
                     >
-                        View All
+                        View Tasks
                     </button>
 
                 </div>
 
-
                 <div
-                    id="dashboardTasksList"
-                    class="tasks-list"
+                    id="recentTasks"
+                    class="recent-list"
                 >
                 </div>
 
@@ -636,7 +601,7 @@
 
         <!-- =================================================
              TASKS
-        ================================================= -->
+        ================================================== -->
 
         <section
             id="tasksSection"
@@ -647,19 +612,15 @@
 
                 <div>
 
-                    <h2>
-                        Tasks
-                    </h2>
+                    <h2>Tasks</h2>
 
                     <p>
-                        Manage and track your work
+                        Manage your completed work.
                     </p>
 
                 </div>
 
-
                 <button
-                    type="button"
                     id="newTaskBtn"
                     class="primary-btn"
                 >
@@ -669,42 +630,195 @@
             </div>
 
 
-            <div class="task-controls">
+            <div class="filter-bar">
 
-                <input
-                    type="search"
-                    id="taskSearch"
-                    placeholder="Search tasks..."
-                >
+                <div class="form-group">
 
+                    <label for="taskSearch">
+                        Search
+                    </label>
 
-                <select id="taskFilter">
+                    <input
+                        type="search"
+                        id="taskSearch"
+                        placeholder="Search tasks..."
+                    >
 
-                    <option value="all">
-                        All Tasks
-                    </option>
+                </div>
 
-                    <option value="today">
-                        Today
-                    </option>
+                <div class="form-group">
 
-                    <option value="pending">
-                        Pending
-                    </option>
+                    <label for="taskMonthFilter">
+                        Month
+                    </label>
 
-                    <option value="completed">
-                        Completed
-                    </option>
+                    <input
+                        type="month"
+                        id="taskMonthFilter"
+                    >
 
-                </select>
+                </div>
 
             </div>
 
 
-            <div
-                id="tasksList"
-                class="tasks-list"
-            >
+            <div class="content-card">
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Date</th>
+                                <th>Set</th>
+                                <th>Task</th>
+                                <th>Task Name</th>
+                                <th>Hours</th>
+                                <th>Link</th>
+                                <th>Actions</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="tasksTableBody">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             DAILY REPORTS
+        ================================================== -->
+
+        <section
+            id="dailyReportsSection"
+            class="page-section"
+        >
+
+            <div class="section-heading">
+
+                <div>
+
+                    <h2>Daily Reports</h2>
+
+                    <p>
+                        Track daily attendance and completed work.
+                    </p>
+
+                </div>
+
+                <button
+                    id="newDailyReportBtn"
+                    class="primary-btn"
+                >
+                    + New Daily Report
+                </button>
+
+            </div>
+
+
+            <div class="filter-bar">
+
+                <div class="form-group">
+
+                    <label for="reportDateFilter">
+                        Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="reportDateFilter"
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="reportMonthFilter">
+                        Month
+                    </label>
+
+                    <input
+                        type="month"
+                        id="reportMonthFilter"
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="reportArchiveFilter">
+                        Archive
+                    </label>
+
+                    <select id="reportArchiveFilter">
+
+                        <option value="active">
+                            Active
+                        </option>
+
+                        <option value="archived">
+                            Archived
+                        </option>
+
+                        <option value="all">
+                            All
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="content-card">
+
+                <div class="table-wrapper">
+
+                    <table class="wide-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Date</th>
+                                <th>User</th>
+                                <th>Time In</th>
+                                <th>Time Out</th>
+                                <th>Location</th>
+                                <th>Month</th>
+                                <th>Set</th>
+                                <th>Task</th>
+                                <th>Task Name</th>
+                                <th>Task Link</th>
+                                <th>Total Hours</th>
+                                <th>Notes</th>
+                                <th>Ops Note</th>
+                                <th>Archive</th>
+                                <th>Actions</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="dailyReportsTableBody">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
             </div>
 
         </section>
@@ -712,7 +826,7 @@
 
         <!-- =================================================
              REPORTS
-        ================================================= -->
+        ================================================== -->
 
         <section
             id="reportsSection"
@@ -723,12 +837,91 @@
 
                 <div>
 
-                    <h2>
-                        Reports
-                    </h2>
+                    <h2>Reports</h2>
 
                     <p>
-                        Review your work activity
+                        Review your work history.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="content-card">
+
+                <div class="card-heading">
+
+                    <div>
+
+                        <h2>Work Summary</h2>
+
+                        <p>
+                            Your recorded tasks and hours.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div
+                    id="reportSummary"
+                    class="summary-grid"
+                >
+                </div>
+
+            </div>
+
+
+            <div class="content-card">
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Date</th>
+                                <th>Task</th>
+                                <th>Task Name</th>
+                                <th>Hours</th>
+                                <th>Notes</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="reportsTableBody">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             MANAGER DASHBOARD
+        ================================================== -->
+
+        <section
+            id="managerSection"
+            class="page-section"
+        >
+
+            <div class="section-heading">
+
+                <div>
+
+                    <h2>Manager Dashboard</h2>
+
+                    <p>
+                        Monitor employees, attendance and work.
                     </p>
 
                 </div>
@@ -741,19 +934,14 @@
                 <div class="stat-card">
 
                     <div class="stat-icon">
-                        📝
+                        👥
                     </div>
 
                     <div>
-
-                        <span>
-                            Total Tasks
-                        </span>
-
-                        <strong id="reportTotalTasks">
+                        <span>Employees</span>
+                        <strong id="managerEmployeeCount">
                             0
                         </strong>
-
                     </div>
 
                 </div>
@@ -762,19 +950,30 @@
                 <div class="stat-card">
 
                     <div class="stat-icon">
-                        ✅
+                        🟢
                     </div>
 
                     <div>
-
-                        <span>
-                            Completed
-                        </span>
-
-                        <strong id="reportCompletedTasks">
+                        <span>Working Today</span>
+                        <strong id="managerWorkingCount">
                             0
                         </strong>
+                    </div>
 
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        📝
+                    </div>
+
+                    <div>
+                        <span>Total Tasks</span>
+                        <strong id="managerTaskCount">
+                            0
+                        </strong>
                     </div>
 
                 </div>
@@ -787,15 +986,10 @@
                     </div>
 
                     <div>
-
-                        <span>
-                            Total Time
-                        </span>
-
-                        <strong id="reportTotalTime">
+                        <span>Total Hours</span>
+                        <strong id="managerHours">
                             0 hrs 00 min
                         </strong>
-
                     </div>
 
                 </div>
@@ -805,22 +999,19 @@
 
             <div class="content-card">
 
-                <div class="card-header">
+                <div class="card-heading">
 
                     <div>
 
-                        <h2>
-                            Task Report
-                        </h2>
+                        <h2>Employees</h2>
 
                         <p>
-                            Overview of recorded tasks
+                            Current employee status.
                         </p>
 
                     </div>
 
                 </div>
-
 
                 <div class="table-wrapper">
 
@@ -830,33 +1021,248 @@
 
                             <tr>
 
-                                <th>
-                                    Task
-                                </th>
-
-                                <th>
-                                    Category
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
-                                <th>
-                                    Time
-                                </th>
-
-                                <th>
-                                    Date
-                                </th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Today</th>
+                                <th>Hours</th>
 
                             </tr>
 
                         </thead>
 
-                        <tbody
-                            id="reportsTableBody"
-                        >
+                        <tbody id="managerUsersTable">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <div class="content-card">
+
+                <div class="card-heading">
+
+                    <div>
+
+                        <h2>Employee Daily Reports</h2>
+
+                        <p>
+                            Recent reports submitted by employees.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="table-wrapper">
+
+                    <table class="wide-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Date</th>
+                                <th>Employee</th>
+                                <th>Task</th>
+                                <th>Task Name</th>
+                                <th>Hours</th>
+                                <th>Notes</th>
+                                <th>Ops Note</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="managerReportsTable">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             ADMIN DASHBOARD
+        ================================================== -->
+
+        <section
+            id="adminSection"
+            class="page-section"
+        >
+
+            <div class="section-heading">
+
+                <div>
+
+                    <h2>Admin Dashboard</h2>
+
+                    <p>
+                        Manage users, roles and records.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        👥
+                    </div>
+
+                    <div>
+                        <span>Total Users</span>
+                        <strong id="adminTotalUsers">
+                            0
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        👤
+                    </div>
+
+                    <div>
+                        <span>Employees</span>
+                        <strong id="adminEmployeeCount">
+                            0
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        👨‍💼
+                    </div>
+
+                    <div>
+                        <span>Managers</span>
+                        <strong id="adminManagerCount">
+                            0
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-icon">
+                        🛡️
+                    </div>
+
+                    <div>
+                        <span>Admins</span>
+                        <strong id="adminAdminCount">
+                            0
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="content-card">
+
+                <div class="card-heading">
+
+                    <div>
+
+                        <h2>User Management</h2>
+
+                        <p>
+                            Assign employee, manager or admin roles.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Created</th>
+                                <th>Role</th>
+                                <th>Action</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="adminUsersTable">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <div class="content-card">
+
+                <div class="card-heading">
+
+                    <div>
+
+                        <h2>All Daily Reports</h2>
+
+                        <p>
+                            Review company work reports.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="table-wrapper">
+
+                    <table class="wide-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Date</th>
+                                <th>Employee</th>
+                                <th>Task</th>
+                                <th>Task Name</th>
+                                <th>Hours</th>
+                                <th>Notes</th>
+                                <th>Ops Note</th>
+                                <th>Status</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="adminReportsTable">
                         </tbody>
 
                     </table>
@@ -870,7 +1276,7 @@
 
         <!-- =================================================
              SETTINGS
-        ================================================= -->
+        ================================================== -->
 
         <section
             id="settingsSection"
@@ -881,12 +1287,10 @@
 
                 <div>
 
-                    <h2>
-                        Settings
-                    </h2>
+                    <h2>Settings</h2>
 
                     <p>
-                        Manage your account and preferences
+                        Manage your account preferences.
                     </p>
 
                 </div>
@@ -894,83 +1298,66 @@
             </div>
 
 
-            <div class="settings-grid">
+            <div class="content-card">
 
+                <h2>Account</h2>
 
-                <div class="content-card">
+                <div class="settings-profile">
 
-                    <h2>
-                        Account
-                    </h2>
+                    <div
+                        class="large-avatar"
+                        id="settingsAvatar"
+                    >
+                        U
+                    </div>
 
-                    <div class="profile-settings">
+                    <div>
 
-                        <div
-                            id="settingsUserAvatar"
-                            class="large-avatar"
+                        <h3 id="settingsName">
+                            User
+                        </h3>
+
+                        <p id="settingsEmail">
+                            user@example.com
+                        </p>
+
+                        <span
+                            id="settingsRole"
+                            class="role-badge employee"
                         >
-                            U
-                        </div>
-
-                        <div>
-
-                            <strong
-                                id="settingsUserName"
-                            >
-                                User
-                            </strong>
-
-                            <span
-                                id="settingsUserEmail"
-                            >
-                                user@email.com
-                            </span>
-
-                        </div>
+                            Employee
+                        </span>
 
                     </div>
 
                 </div>
 
+            </div>
 
-                <div class="content-card">
 
-                    <h2>
-                        Appearance
-                    </h2>
+            <div class="content-card">
 
-                    <p>
-                        Change between light and dark mode.
-                    </p>
+                <h2>Appearance</h2>
+
+                <div class="setting-row">
+
+                    <div>
+
+                        <strong>
+                            Dark Mode
+                        </strong>
+
+                        <p>
+                            Change the appearance of the application.
+                        </p>
+
+                    </div>
 
                     <button
-                        type="button"
                         id="settingsThemeBtn"
                         class="secondary-btn"
                     >
-                        Switch to Dark Mode
-                    </button>
-
-                </div>
-
-
-                <div class="content-card danger-card">
-
-                    <h2>
-                        Delete Account
-                    </h2>
-
-                    <p>
-                        Delete your account and all locally
-                        stored tasks and attendance data.
-                    </p>
-
-                    <button
-                        type="button"
-                        id="deleteAccountBtn"
-                        class="danger-btn"
-                    >
-                        Delete Account
+                        Toggle Theme
                     </button>
 
                 </div>
@@ -984,9 +1371,9 @@
 </div>
 
 
-<!-- =====================================================
+<!-- =========================================================
      TASK MODAL
-===================================================== -->
+========================================================= -->
 
 <div
     id="taskModal"
@@ -1004,13 +1391,12 @@
                 </h2>
 
                 <p>
-                    Create and track your task
+                    Record completed work.
                 </p>
 
             </div>
 
             <button
-                type="button"
                 id="closeTaskModalBtn"
                 class="close-btn"
             >
@@ -1024,179 +1410,184 @@
 
             <input
                 type="hidden"
-                id="editingTaskId"
+                id="taskId"
             >
-
-
-            <div class="form-group">
-
-                <label for="taskTitle">
-                    Task Title
-                </label>
-
-                <input
-                    type="text"
-                    id="taskTitle"
-                    placeholder="Enter task title"
-                    required
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="taskDescription">
-                    Description
-                </label>
-
-                <textarea
-                    id="taskDescription"
-                    placeholder="Describe the task..."
-                    rows="4"
-                ></textarea>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="taskCategory">
-                    Category
-                </label>
-
-                <select id="taskCategory">
-
-                    <option value="SEO">
-                        SEO
-                    </option>
-
-                    <option value="Content">
-                        Content
-                    </option>
-
-                    <option value="Research">
-                        Research
-                    </option>
-
-                    <option value="Admin">
-                        Admin
-                    </option>
-
-                    <option value="Other">
-                        Other
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <!-- TIMER -->
-
-            <div class="timer-box">
-
-                <div class="timer-status">
-
-                    <span>
-                        Task Timer
-                    </span>
-
-                    <strong id="timerStatus">
-                        Ready
-                    </strong>
-
-                </div>
-
-
-                <div
-                    id="liveTimerDisplay"
-                    class="live-timer"
-                >
-                    00:00:00
-                </div>
-
-
-                <div class="timer-actions">
-
-                    <button
-                        type="button"
-                        id="startTimerBtn"
-                        class="timer-start"
-                    >
-                        ▶ Start
-                    </button>
-
-
-                    <button
-                        type="button"
-                        id="pauseTimerBtn"
-                        class="timer-pause"
-                        disabled
-                    >
-                        ⏸ Pause
-                    </button>
-
-
-                    <button
-                        type="button"
-                        id="breakBtn"
-                        class="timer-break"
-                        disabled
-                    >
-                        ☕ Break
-                    </button>
-
-
-                    <button
-                        type="button"
-                        id="stopTimerBtn"
-                        class="timer-stop"
-                        disabled
-                    >
-                        ⏹ Stop
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <!-- MANUAL TIME -->
 
             <div class="form-row">
 
                 <div class="form-group">
 
-                    <label for="timeHours">
-                        Hours
+                    <label for="taskDate">
+                        Date
                     </label>
 
                     <input
-                        type="number"
-                        id="timeHours"
-                        min="0"
-                        value="0"
+                        type="date"
+                        id="taskDate"
+                        required
                     >
 
                 </div>
 
+                <div class="form-group">
+
+                    <label for="taskSet">
+                        Set
+                    </label>
+
+                    <select id="taskSet">
+
+                        <option value="Set 1">
+                            Set 1
+                        </option>
+
+                        <option value="Set 2">
+                            Set 2
+                        </option>
+
+                        <option value="Set 3">
+                            Set 3
+                        </option>
+
+                        <option value="Set 4">
+                            Set 4
+                        </option>
+
+                        <option value="Other">
+                            Other
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-row">
 
                 <div class="form-group">
 
-                    <label for="timeMinutes">
-                        Minutes
+                    <label for="taskType">
+                        Task
+                    </label>
+
+                    <input
+                        type="text"
+                        id="taskType"
+                        placeholder="SEO"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="taskName">
+                        Task Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="taskName"
+                        placeholder="Create City Page"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="taskLink">
+                    Task Link
+                </label>
+
+                <input
+                    type="url"
+                    id="taskLink"
+                    placeholder="https://..."
+                >
+
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="taskHours">
+                        Total Hours
                     </label>
 
                     <input
                         type="number"
-                        id="timeMinutes"
+                        id="taskHours"
+                        min="0"
+                        step="0.01"
+                        placeholder="1.5"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="taskMinutes">
+                        Additional Minutes
+                    </label>
+
+                    <input
+                        type="number"
+                        id="taskMinutes"
                         min="0"
                         max="59"
                         value="0"
                     >
 
                 </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="taskNotes">
+                    Notes
+                </label>
+
+                <textarea
+                    id="taskNotes"
+                    rows="4"
+                    placeholder="Describe the completed work..."
+                ></textarea>
+
+            </div>
+
+
+            <div class="timer-box">
+
+                <div>
+
+                    <span>
+                        Task Timer
+                    </span>
+
+                    <strong id="taskTimerDisplay">
+                        00:00:00
+                    </strong>
+
+                </div>
+
+                <button
+                    type="button"
+                    id="taskTimerBtn"
+                    class="secondary-btn"
+                >
+                    ▶ Start Timer
+                </button>
 
             </div>
 
@@ -1227,9 +1618,285 @@
 </div>
 
 
-<!-- =====================================================
+<!-- =========================================================
+     DAILY REPORT MODAL
+========================================================= -->
+
+<div
+    id="dailyReportModal"
+    class="modal hidden"
+>
+
+    <div class="modal-card large-modal">
+
+        <div class="modal-header">
+
+            <div>
+
+                <h2>
+                    Daily Work Report
+                </h2>
+
+                <p>
+                    Record your daily work.
+                </p>
+
+            </div>
+
+            <button
+                id="closeDailyReportBtn"
+                class="close-btn"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="dailyReportForm">
+
+            <input
+                type="hidden"
+                id="dailyReportId"
+            >
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="dailyReportDate">
+                        Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="dailyReportDate"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="dailyReportLocation">
+                        Location
+                    </label>
+
+                    <input
+                        type="text"
+                        id="dailyReportLocation"
+                        placeholder="Office / Remote / Client Site"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="dailyReportTimeIn">
+                        Time In
+                    </label>
+
+                    <input
+                        type="time"
+                        id="dailyReportTimeIn"
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="dailyReportTimeOut">
+                        Time Out
+                    </label>
+
+                    <input
+                        type="time"
+                        id="dailyReportTimeOut"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="dailyReportMonth">
+                        Month
+                    </label>
+
+                    <input
+                        type="month"
+                        id="dailyReportMonth"
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="dailyReportSet">
+                        Set
+                    </label>
+
+                    <select id="dailyReportSet">
+
+                        <option value="Set 1">
+                            Set 1
+                        </option>
+
+                        <option value="Set 2">
+                            Set 2
+                        </option>
+
+                        <option value="Set 3">
+                            Set 3
+                        </option>
+
+                        <option value="Set 4">
+                            Set 4
+                        </option>
+
+                        <option value="Other">
+                            Other
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="dailyReportTask">
+                        Task
+                    </label>
+
+                    <input
+                        type="text"
+                        id="dailyReportTask"
+                        placeholder="SEO"
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="dailyReportTaskName">
+                        Task Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="dailyReportTaskName"
+                        placeholder="Create City Page"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="dailyReportTaskLink">
+                    Task Link
+                </label>
+
+                <input
+                    type="url"
+                    id="dailyReportTaskLink"
+                    placeholder="https://..."
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="dailyReportHours">
+                    Total Hours Completed
+                </label>
+
+                <input
+                    type="text"
+                    id="dailyReportHours"
+                    placeholder="8 hrs 00 min"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="dailyReportNotes">
+                    Notes
+                </label>
+
+                <textarea
+                    id="dailyReportNotes"
+                    rows="4"
+                    placeholder="Describe the work completed..."
+                ></textarea>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="dailyReportOpsNote">
+                    Ops Note
+                </label>
+
+                <textarea
+                    id="dailyReportOpsNote"
+                    rows="4"
+                    placeholder="Manager/Admin operational note..."
+                ></textarea>
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    id="cancelDailyReportBtn"
+                    class="secondary-btn"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+                    Save Report
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
      TOAST
-===================================================== -->
+========================================================= -->
 
 <div
     id="toastContainer"
@@ -1237,7 +1904,10 @@
 ></div>
 
 
-<script src="script.js"></script>
+<script
+    type="module"
+    src="script.js"
+></script>
 
 </body>
 </html>
