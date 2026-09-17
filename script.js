@@ -1,395 +1,736 @@
 /* =========================================================
-   TIME TRACKER
-   LOCAL AUTHENTICATION VERSION
+   VARIABLES
 ========================================================= */
 
+:root {
 
-/* =========================================================
-   STORAGE KEYS
-========================================================= */
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
 
-const STORAGE = {
+    --success: #16a34a;
+    --danger: #dc2626;
+    --warning: #d97706;
 
-    USERS:
-        "timeTrackerUsers",
+    --bg: #f5f7fb;
+    --surface: #ffffff;
+    --surface-2: #f8fafc;
 
-    SESSION:
-        "timeTrackerCurrentUser",
+    --text: #172033;
+    --muted: #64748b;
 
-    TASKS:
-        "timeTrackerTasks",
+    --border: #e2e8f0;
 
-    ATTENDANCE:
-        "timeTrackerAttendance",
+    --sidebar: #111827;
+    --sidebar-text: #d1d5db;
+    --sidebar-muted: #94a3b8;
 
-    THEME:
-        "timeTrackerTheme"
-};
+    --shadow:
+        0 10px 30px rgba(15, 23, 42, 0.08);
 
+    --radius: 14px;
 
-/* =========================================================
-   GLOBAL STATE
-========================================================= */
-
-let currentUser = null;
-
-
-let timerState = {
-
-    taskId: null,
-
-    workSeconds: 0,
-
-    breakSeconds: 0,
-
-    workStartedAt: null,
-
-    breakStartedAt: null,
-
-    timerRunning: false,
-
-    timerPaused: false,
-
-    breakRunning: false,
-
-    interval: null
-};
+}
 
 
-/* =========================================================
-   DOM HELPER
-========================================================= */
+body.dark {
 
-const $ = id =>
-    document.getElementById(id);
+    --bg: #0f172a;
+    --surface: #111827;
+    --surface-2: #1e293b;
 
+    --text: #f8fafc;
+    --muted: #94a3b8;
 
-/* =========================================================
-   TOAST
-========================================================= */
+    --border: #334155;
 
-function showToast(
-    message,
-    type = "success"
-) {
-
-    const container =
-        $("toastContainer");
-
-    if (!container) {
-
-        alert(message);
-
-        return;
-    }
-
-    const toast =
-        document.createElement("div");
-
-    toast.className =
-        `toast ${type}`;
-
-    toast.textContent =
-        message;
-
-    container.appendChild(
-        toast
-    );
-
-    setTimeout(
-        () => toast.remove(),
-        4000
-    );
 }
 
 
 /* =========================================================
-   SIMPLE PASSWORD HASH
+   RESET
 ========================================================= */
 
-async function hashPassword(password) {
+* {
+    box-sizing: border-box;
+}
 
-    const encoder =
-        new TextEncoder();
+html {
+    scroll-behavior: smooth;
+}
 
-    const data =
-        encoder.encode(password);
+body {
 
-    const hashBuffer =
-        await crypto.subtle.digest(
-            "SHA-256",
-            data
-        );
+    margin: 0;
 
-    const hashArray =
-        Array.from(
-            new Uint8Array(
-                hashBuffer
-            )
-        );
+    font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
 
-    return hashArray
-        .map(
-            byte =>
-                byte
-                    .toString(16)
-                    .padStart(2, "0")
-        )
-        .join("");
+    background: var(--bg);
+    color: var(--text);
+
+}
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: .55;
+}
+
+.hidden {
+    display: none !important;
 }
 
 
 /* =========================================================
-   USER STORAGE
+   AUTH
 ========================================================= */
 
-function getUsers() {
+.auth-screen {
 
-    try {
+    min-height: 100vh;
 
-        return JSON.parse(
-            localStorage.getItem(
-                STORAGE.USERS
-            )
-        ) || [];
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    } catch (error) {
+    padding: 24px;
 
-        console.error(
-            "Could not load users:",
-            error
-        );
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(37, 99, 235, .18),
+            transparent 35%
+        ),
+        var(--bg);
 
-        return [];
-    }
 }
 
+.auth-card {
 
-function saveUsers(users) {
+    width: 100%;
+    max-width: 480px;
 
-    localStorage.setItem(
-        STORAGE.USERS,
-        JSON.stringify(users)
-    );
+    padding: 36px;
+
+    background: var(--surface);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 20px;
+
+    box-shadow: var(--shadow);
+
+}
+
+.auth-logo {
+
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    margin-bottom: 32px;
+
+}
+
+.logo-icon {
+
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: var(--primary);
+
+    color: white;
+
+    font-size: 24px;
+
+}
+
+.auth-logo h1 {
+
+    margin: 0;
+
+    font-size: 24px;
+
+}
+
+.auth-logo p {
+
+    margin: 4px 0 0;
+
+    color: var(--muted);
+
+    font-size: 13px;
+
+}
+
+.auth-card h2 {
+
+    margin: 0 0 8px;
+
+}
+
+.auth-description {
+
+    color: var(--muted);
+
+    margin:
+        0
+        0
+        24px;
+
 }
 
 
 /* =========================================================
-   SESSION
+   FORMS
 ========================================================= */
 
-function saveSession(user) {
+.form-group {
 
-    localStorage.setItem(
-        STORAGE.SESSION,
-        JSON.stringify({
-            id: user.id,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email
-        })
-    );
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
+
 }
 
+.form-group label {
 
-function loadSession() {
+    font-size: 13px;
 
-    try {
+    font-weight: 700;
 
-        return JSON.parse(
-            localStorage.getItem(
-                STORAGE.SESSION
-            )
-        );
-
-    } catch {
-
-        return null;
-    }
 }
 
+.form-group input,
+.form-group select,
+.form-group textarea {
 
-function clearSession() {
+    width: 100%;
 
-    localStorage.removeItem(
-        STORAGE.SESSION
-    );
+    padding: 11px 13px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 9px;
+
+    outline: none;
+
+    background: var(--surface);
+
+    color: var(--text);
+
+    transition:
+        border .2s,
+        box-shadow .2s;
+
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+
+    border-color: var(--primary);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37, 99, 235, .12);
+
+}
+
+.form-row {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 16px;
+
+}
+
+.form-group {
+    margin-bottom: 17px;
 }
 
 
 /* =========================================================
-   USER-SPECIFIC STORAGE KEY
+   BUTTONS
 ========================================================= */
 
-function getUserStorageKey(
-    baseKey
-) {
+.primary-btn,
+.secondary-btn,
+.success-btn,
+.danger-btn {
 
-    if (!currentUser) {
+    border: 0;
 
-        return baseKey;
-    }
+    border-radius: 9px;
 
-    return `${baseKey}_${currentUser.id}`;
+    padding:
+        10px
+        15px;
+
+    font-weight: 700;
+
+    transition:
+        transform .15s,
+        opacity .15s,
+        background .15s;
+
+}
+
+.primary-btn {
+
+    background: var(--primary);
+    color: white;
+
+}
+
+.primary-btn:hover {
+    background: var(--primary-dark);
+}
+
+.secondary-btn {
+
+    background: var(--surface-2);
+    color: var(--text);
+
+    border:
+        1px solid var(--border);
+
+}
+
+.success-btn {
+
+    background: var(--success);
+    color: white;
+
+}
+
+.danger-btn {
+
+    background: var(--danger);
+    color: white;
+
+}
+
+.full-width {
+    width: 100%;
+}
+
+.text-btn {
+
+    background: transparent;
+    border: 0;
+
+    color: var(--primary);
+
+    font-weight: 700;
+
+    padding: 5px;
+
+}
+
+.auth-links {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-top: 20px;
+
+}
+
+.close-btn {
+
+    width: 36px;
+    height: 36px;
+
+    border: 0;
+
+    border-radius: 50%;
+
+    background: var(--surface-2);
+
+    color: var(--text);
+
+    font-size: 24px;
+
 }
 
 
 /* =========================================================
-   DATE / TIME
+   APP LAYOUT
 ========================================================= */
 
-function formatTime(
-    dateValue
-) {
+.app-screen {
 
-    if (!dateValue) {
+    min-height: 100vh;
 
-        return "--:--";
-    }
+    display: flex;
 
-    const date =
-        new Date(dateValue);
+}
 
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
+.sidebar {
 
-        return "--:--";
-    }
+    width: 260px;
 
-    return date.toLocaleTimeString(
-        [],
-        {
-            hour: "numeric",
-            minute: "2-digit"
-        }
-    );
+    min-height: 100vh;
+
+    position: fixed;
+
+    left: 0;
+    top: 0;
+    bottom: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    background: var(--sidebar);
+
+    color: var(--sidebar-text);
+
+    padding: 20px;
+
+    z-index: 50;
+
+}
+
+.sidebar-brand {
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    margin-bottom: 25px;
+
+}
+
+.sidebar-brand strong {
+
+    display: block;
+
+    color: white;
+
+}
+
+.sidebar-brand small {
+
+    display: block;
+
+    color: var(--sidebar-muted);
+
+    margin-top: 3px;
+
 }
 
 
-function formatDate(
-    dateValue
-) {
+.sidebar-user {
 
-    if (!dateValue) {
+    display: flex;
 
-        return "";
-    }
+    gap: 11px;
 
-    const date =
-        new Date(dateValue);
+    align-items: center;
 
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
+    padding:
+        13px;
 
-        return "";
-    }
+    border-radius: 12px;
 
-    return date.toLocaleDateString(
-        [],
-        {
-            year: "numeric",
-            month: "short",
-            day: "numeric"
-        }
-    );
+    background:
+        rgba(255,255,255,.06);
+
+    margin-bottom: 20px;
+
 }
 
+.avatar,
+.large-avatar {
 
-function getDateKey(
-    date = new Date()
-) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    const year =
-        date.getFullYear();
+    flex-shrink: 0;
 
-    const month =
-        String(
-            date.getMonth() + 1
-        ).padStart(2, "0");
+    border-radius: 50%;
 
-    const day =
-        String(
-            date.getDate()
-        ).padStart(2, "0");
+    background: var(--primary);
 
-    return `${year}-${month}-${day}`;
+    color: white;
+
+    font-weight: 800;
+
+}
+
+.avatar {
+
+    width: 42px;
+    height: 42px;
+
+}
+
+.large-avatar {
+
+    width: 70px;
+    height: 70px;
+
+    font-size: 24px;
+
+}
+
+.sidebar-user-info {
+
+    min-width: 0;
+
+}
+
+.sidebar-user-info strong {
+
+    display: block;
+
+    color: white;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+}
+
+.sidebar-user-info span:not(.user-role) {
+
+    display: block;
+
+    color: var(--sidebar-muted);
+
+    font-size: 11px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+}
+
+.user-role {
+
+    display: inline-block;
+
+    margin-top: 5px;
+
+    padding:
+        3px
+        8px;
+
+    border-radius: 999px;
+
+    background:
+        rgba(37, 99, 235, .25);
+
+    color: #93c5fd;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
 }
 
 
 /* =========================================================
-   DURATION
+   NAV
 ========================================================= */
 
-function formatDuration(
-    totalSeconds
-) {
+.sidebar-nav {
 
-    totalSeconds =
-        Math.max(
-            0,
-            Math.floor(
-                Number(
-                    totalSeconds
-                ) || 0
-            )
-        );
+    display: flex;
+    flex-direction: column;
 
-    const hours =
-        Math.floor(
-            totalSeconds / 3600
-        );
+    gap: 5px;
 
-    const minutes =
-        Math.floor(
-            (
-                totalSeconds % 3600
-            ) / 60
-        );
+}
 
-    return `${hours} hrs ${String(minutes).padStart(2, "0")} min`;
+.nav-btn {
+
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+
+    padding:
+        11px
+        13px;
+
+    border: 0;
+
+    border-radius: 9px;
+
+    background: transparent;
+
+    color: var(--sidebar-text);
+
+    text-align: left;
+
+    font-weight: 600;
+
+}
+
+.nav-btn:hover {
+
+    background:
+        rgba(255,255,255,.06);
+
+}
+
+.nav-btn.active {
+
+    background: var(--primary);
+
+    color: white;
+
+}
+
+.sidebar-bottom {
+
+    margin-top: auto;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 5px;
+
+}
+
+.sidebar-action {
+
+    width: 100%;
+
+    border: 0;
+
+    background: transparent;
+
+    color: var(--sidebar-text);
+
+    text-align: left;
+
+    padding: 11px 13px;
+
+    border-radius: 9px;
+
+}
+
+.sidebar-action:hover {
+
+    background:
+        rgba(255,255,255,.06);
+
+}
+
+.sidebar-action.logout {
+
+    color: #fca5a5;
+
 }
 
 
-function formatTimer(
-    totalSeconds
-) {
+/* =========================================================
+   MAIN
+========================================================= */
 
-    totalSeconds =
-        Math.max(
-            0,
-            Math.floor(
-                Number(
-                    totalSeconds
-                ) || 0
-            )
-        );
+.main-content {
 
-    const hours =
-        Math.floor(
-            totalSeconds / 3600
-        );
+    width: calc(100% - 260px);
 
-    const minutes =
-        Math.floor(
-            (
-                totalSeconds % 3600
-            ) / 60
-        );
+    margin-left: 260px;
 
-    const seconds =
-        totalSeconds % 60;
+    padding: 30px;
 
-    return [
-        String(hours).padStart(2, "0"),
-        String(minutes).padStart(2, "0"),
-        String(seconds).padStart(2, "0")
-    ].join(":");
+}
+
+.mobile-header {
+
+    display: none;
+
+}
+
+.page-section {
+    display: none;
+}
+
+.page-section.active {
+    display: block;
+}
+
+.section-heading {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 25px;
+
+}
+
+.section-heading h2 {
+
+    margin:
+        0
+        5px;
+
+    font-size: 28px;
+
+}
+
+.section-heading p {
+
+    margin: 0;
+
+    color: var(--muted);
+
+}
+
+.current-date {
+
+    color: var(--muted);
+
+    font-size: 13px;
+
 }
 
 
@@ -397,3433 +738,954 @@ function formatTimer(
    ATTENDANCE
 ========================================================= */
 
-function getAttendance() {
+.attendance-card {
 
-    if (!currentUser) {
+    display: flex;
 
-        return {
-            date: getDateKey(),
-            timeIn: null,
-            timeOut: null,
-            totalBreakSeconds: 0
-        };
-    }
+    justify-content: space-between;
 
-    try {
+    align-items: center;
 
-        return JSON.parse(
-            localStorage.getItem(
-                getUserStorageKey(
-                    STORAGE.ATTENDANCE
-                )
-            )
-        ) || {
+    gap: 20px;
 
-            date: getDateKey(),
+    padding: 24px;
 
-            timeIn: null,
+    margin-bottom: 22px;
 
-            timeOut: null,
-
-            totalBreakSeconds: 0
-        };
-
-    } catch {
-
-        return {
-
-            date: getDateKey(),
-
-            timeIn: null,
-
-            timeOut: null,
-
-            totalBreakSeconds: 0
-        };
-    }
-}
-
-
-function saveAttendance(
-    attendance
-) {
-
-    if (!currentUser) {
-
-        return;
-    }
-
-    localStorage.setItem(
-
-        getUserStorageKey(
-            STORAGE.ATTENDANCE
-        ),
-
-        JSON.stringify(
-            attendance
-        )
-    );
-}
-
-
-function ensureTodayAttendance() {
-
-    let attendance =
-        getAttendance();
-
-    const today =
-        getDateKey();
-
-    if (
-        attendance.date !==
-        today
-    ) {
-
-        attendance = {
-
-            date: today,
-
-            timeIn: null,
-
-            timeOut: null,
-
-            totalBreakSeconds: 0
-        };
-
-        saveAttendance(
-            attendance
+    background:
+        linear-gradient(
+            135deg,
+            var(--primary),
+            #4f46e5
         );
-    }
 
-    return attendance;
+    color: white;
+
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+
+}
+
+.card-label {
+
+    display: block;
+
+    opacity: .8;
+
+    font-size: 13px;
+
+}
+
+.attendance-status {
+
+    display: block;
+
+    margin-top: 5px;
+
+    font-size: 24px;
+
+}
+
+.attendance-times {
+
+    margin-top: 9px;
+
+    font-size: 13px;
+
+    opacity: .85;
+
+}
+
+.attendance-actions {
+
+    display: flex;
+
+    gap: 10px;
+
 }
 
 
 /* =========================================================
-   ATTENDANCE CALCULATION
+   STATS
 ========================================================= */
 
-function getWorkedSeconds(
-    attendance
-) {
+.stats-grid {
 
-    if (
-        !attendance ||
-        !attendance.timeIn ||
-        !attendance.timeOut
-    ) {
+    display: grid;
 
-        return 0;
-    }
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
 
-    const start =
-        new Date(
-            attendance.timeIn
-        ).getTime();
+    gap: 16px;
 
-    const end =
-        new Date(
-            attendance.timeOut
-        ).getTime();
+    margin-bottom: 22px;
 
-    if (
-        Number.isNaN(start) ||
-        Number.isNaN(end) ||
-        end <= start
-    ) {
+}
 
-        return 0;
-    }
+.stat-card {
 
-    const elapsed =
-        Math.floor(
-            (end - start) /
-            1000
-        );
+    display: flex;
 
-    const breaks =
-        Number(
-            attendance.totalBreakSeconds
-        ) || 0;
+    align-items: center;
 
-    return Math.max(
-        0,
-        elapsed - breaks
-    );
+    gap: 13px;
+
+    padding: 20px;
+
+    background: var(--surface);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: var(--radius);
+
+    box-shadow:
+        0 5px 20px
+        rgba(15,23,42,.04);
+
+}
+
+.stat-icon {
+
+    width: 43px;
+    height: 43px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 11px;
+
+    background:
+        rgba(37,99,235,.10);
+
+}
+
+.stat-card span {
+
+    display: block;
+
+    color: var(--muted);
+
+    font-size: 12px;
+
+}
+
+.stat-card strong {
+
+    display: block;
+
+    margin-top: 4px;
+
+    font-size: 19px;
+
 }
 
 
 /* =========================================================
-   TIME IN
+   CARDS
 ========================================================= */
 
-function timeIn() {
+.content-card {
 
-    if (!currentUser) {
+    background: var(--surface);
 
-        showToast(
-            "Please log in first.",
-            "error"
-        );
+    border:
+        1px solid var(--border);
 
-        return;
-    }
+    border-radius: var(--radius);
 
-    const attendance =
-        ensureTodayAttendance();
+    padding: 22px;
 
-    if (attendance.timeIn) {
+    margin-bottom: 22px;
 
-        showToast(
-            "You have already timed in today.",
-            "warning"
-        );
+    box-shadow:
+        0 5px 20px
+        rgba(15,23,42,.04);
 
-        return;
-    }
+}
 
-    attendance.timeIn =
-        new Date().toISOString();
+.content-card h2 {
 
-    attendance.timeOut =
-        null;
+    margin-top: 0;
 
-    attendance.totalBreakSeconds =
+}
+
+.card-heading {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 18px;
+
+}
+
+.card-heading h2 {
+
+    margin:
+        0
+        4px;
+
+    font-size: 18px;
+
+}
+
+.card-heading p {
+
+    margin: 0;
+
+    color: var(--muted);
+
+    font-size: 13px;
+
+}
+
+
+/* =========================================================
+   FILTERS
+========================================================= */
+
+.filter-bar {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+
+}
+
+
+/* =========================================================
+   TABLES
+========================================================= */
+
+.table-wrapper {
+
+    width: 100%;
+
+    overflow-x: auto;
+
+}
+
+table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    min-width: 700px;
+
+}
+
+.wide-table {
+
+    min-width: 1600px;
+
+}
+
+th {
+
+    padding:
+        12px
+        10px;
+
+    background: var(--surface-2);
+
+    color: var(--muted);
+
+    text-align: left;
+
+    font-size: 11px;
+
+    text-transform: uppercase;
+
+    letter-spacing: .04em;
+
+    white-space: nowrap;
+
+}
+
+td {
+
+    padding:
+        13px
+        10px;
+
+    border-top:
+        1px solid var(--border);
+
+    font-size: 13px;
+
+    vertical-align: top;
+
+}
+
+tr:hover td {
+
+    background:
+        rgba(37,99,235,.025);
+
+}
+
+.table-link {
+
+    color: var(--primary);
+
+    text-decoration: none;
+
+    font-weight: 600;
+
+}
+
+.table-link:hover {
+
+    text-decoration: underline;
+
+}
+
+.table-actions {
+
+    display: flex;
+
+    gap: 6px;
+
+}
+
+.table-actions button {
+
+    border: 0;
+
+    border-radius: 7px;
+
+    padding: 6px 9px;
+
+    background: var(--surface-2);
+
+    color: var(--text);
+
+}
+
+.table-actions .danger {
+
+    color: var(--danger);
+
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.empty-state {
+
+    padding: 35px 20px;
+
+    text-align: center;
+
+    color: var(--muted);
+
+}
+
+
+/* =========================================================
+   RECENT LIST
+========================================================= */
+
+.recent-list {
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+.recent-item {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding:
+        13px
         0;
 
-    saveAttendance(
-        attendance
-    );
+    border-bottom:
+        1px solid var(--border);
 
-    updateAttendanceDisplay();
+}
 
-    updateDashboard();
+.recent-item:last-child {
+    border-bottom: 0;
+}
 
-    showToast(
-        `Time In recorded at ${formatTime(
-            attendance.timeIn
-        )}.`,
-        "success"
-    );
+.recent-item strong {
+
+    display: block;
+
+}
+
+.recent-item span {
+
+    color: var(--muted);
+
+    font-size: 12px;
+
 }
 
 
 /* =========================================================
-   TIME OUT
+   MODAL
 ========================================================= */
 
-function timeOut() {
+.modal {
 
-    if (!currentUser) {
+    position: fixed;
 
-        showToast(
-            "Please log in first.",
-            "error"
-        );
+    inset: 0;
 
-        return;
-    }
+    z-index: 100;
 
-    const attendance =
-        ensureTodayAttendance();
+    display: flex;
 
-    if (!attendance.timeIn) {
+    align-items: center;
 
-        showToast(
-            "Please Time In before Time Out.",
-            "warning"
-        );
+    justify-content: center;
 
-        return;
-    }
+    padding: 20px;
 
-    if (attendance.timeOut) {
+    background:
+        rgba(15,23,42,.65);
 
-        showToast(
-            "You have already timed out today.",
-            "warning"
-        );
+}
 
-        return;
-    }
+.modal-card {
 
-    attendance.timeOut =
-        new Date().toISOString();
+    width: 100%;
 
-    saveAttendance(
-        attendance
-    );
+    max-width: 650px;
 
-    updateAttendanceDisplay();
+    max-height: 92vh;
 
-    updateDashboard();
+    overflow-y: auto;
 
-    showToast(
-        `Time Out recorded at ${formatTime(
-            attendance.timeOut
-        )}.`,
-        "success"
-    );
+    background: var(--surface);
+
+    border-radius: 16px;
+
+    padding: 25px;
+
+    box-shadow:
+        0 25px 80px
+        rgba(0,0,0,.25);
+
+}
+
+.large-modal {
+
+    max-width: 800px;
+
+}
+
+.modal-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 22px;
+
+}
+
+.modal-header h2 {
+
+    margin:
+        0
+        5px;
+
+}
+
+.modal-header p {
+
+    margin: 0;
+
+    color: var(--muted);
+
+}
+
+.modal-actions {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 20px;
+
 }
 
 
 /* =========================================================
-   ATTENDANCE DISPLAY
+   TIMER
 ========================================================= */
 
-function updateAttendanceDisplay() {
+.timer-box {
 
-    if (!currentUser) {
+    display: flex;
 
-        return;
-    }
+    align-items: center;
 
-    const attendance =
-        ensureTodayAttendance();
+    justify-content: space-between;
 
-    if ($("attendanceDate")) {
+    gap: 15px;
 
-        $("attendanceDate").textContent =
-            new Date().toLocaleDateString(
-                [],
-                {
-                    weekday: "long",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric"
-                }
-            );
-    }
+    padding: 15px;
 
-    if ($("timeInDisplay")) {
+    border-radius: 10px;
 
-        $("timeInDisplay").textContent =
-            formatTime(
-                attendance.timeIn
-            );
-    }
+    background: var(--surface-2);
 
-    if ($("timeOutDisplay")) {
+    border:
+        1px solid var(--border);
 
-        $("timeOutDisplay").textContent =
-            formatTime(
-                attendance.timeOut
-            );
-    }
+}
 
+.timer-box span {
 
-    /*
-       IMPORTANT:
+    display: block;
 
-       Attendance does NOT run live.
+    color: var(--muted);
 
-       Before Time Out:
-       Total Worked = 0
+    font-size: 12px;
 
-       After Time Out:
-       Total Worked =
-       Time Out - Time In - Break
-    */
+}
 
-    if ($("totalWorkedDisplay")) {
+.timer-box strong {
 
-        $("totalWorkedDisplay").textContent =
-            formatDuration(
-                getWorkedSeconds(
-                    attendance
-                )
-            );
-    }
+    display: block;
 
+    margin-top: 4px;
 
-    if ($("timeInBtn")) {
+    font-size: 20px;
 
-        $("timeInBtn").disabled =
-            Boolean(
-                attendance.timeIn
-            );
-    }
+    font-variant-numeric: tabular-nums;
 
-
-    if ($("timeOutBtn")) {
-
-        $("timeOutBtn").disabled =
-            !attendance.timeIn ||
-            Boolean(
-                attendance.timeOut
-            );
-    }
-
-
-    if ($("attendanceStatus")) {
-
-        if (!attendance.timeIn) {
-
-            $("attendanceStatus").textContent =
-                "Not started";
-
-            $("attendanceStatus").className =
-                "status-badge ready";
-
-        } else if (
-            !attendance.timeOut
-        ) {
-
-            $("attendanceStatus").textContent =
-                "Currently working";
-
-            $("attendanceStatus").className =
-                "status-badge working";
-
-        } else {
-
-            $("attendanceStatus").textContent =
-                "Completed";
-
-            $("attendanceStatus").className =
-                "status-badge completed";
-        }
-    }
-
-    updateDashboardStatus(
-        attendance
-    );
 }
 
 
 /* =========================================================
-   DASHBOARD STATUS
+   SETTINGS
 ========================================================= */
 
-function updateDashboardStatus(
-    attendance
-) {
+.settings-profile {
 
-    if (!$("dashboardStatus")) {
+    display: flex;
 
-        return;
-    }
+    align-items: center;
 
-    if (!attendance.timeIn) {
+    gap: 18px;
 
-        $("dashboardStatus").textContent =
-            "Ready";
+}
 
-    } else if (
-        !attendance.timeOut
-    ) {
+.settings-profile h3 {
 
-        $("dashboardStatus").textContent =
-            "Working";
+    margin:
+        0
+        5px;
 
-    } else {
+}
 
-        $("dashboardStatus").textContent =
-            "Completed";
-    }
+.settings-profile p {
+
+    margin:
+        0
+        10px;
+
+    color: var(--muted);
+
+}
+
+.setting-row {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 10px 0;
+
+}
+
+.setting-row p {
+
+    margin:
+        5px
+        0
+        0;
+
+    color: var(--muted);
+
+    font-size: 13px;
+
 }
 
 
 /* =========================================================
-   AUTHENTICATION
+   ROLE BADGES
 ========================================================= */
 
-async function register() {
+.role-badge {
 
-    const firstName =
-        $("registerFirstName")
-            ?.value
-            .trim();
+    display: inline-flex;
 
-    const lastName =
-        $("registerLastName")
-            ?.value
-            .trim();
+    align-items: center;
 
-    const email =
-        $("registerEmail")
-            ?.value
-            .trim()
-            .toLowerCase();
+    padding:
+        5px
+        9px;
 
-    const password =
-        $("registerPassword")
-            ?.value || "";
+    border-radius: 999px;
 
+    font-size: 11px;
 
-    if (
-        !firstName ||
-        !lastName ||
-        !email ||
-        !password
-    ) {
+    font-weight: 800;
 
-        showToast(
-            "Please fill in all fields.",
-            "error"
-        );
+}
 
-        return;
-    }
+.role-badge.employee {
 
+    background: #dbeafe;
+    color: #1d4ed8;
 
-    if (password.length < 6) {
+}
 
-        showToast(
-            "Password must be at least 6 characters.",
-            "error"
-        );
+.role-badge.manager {
 
-        return;
-    }
+    background: #fef3c7;
+    color: #92400e;
 
+}
 
-    const users =
-        getUsers();
+.role-badge.admin {
 
-    const existingUser =
-        users.find(
-            user =>
-                user.email === email
-        );
+    background: #ede9fe;
+    color: #6d28d9;
 
-    if (existingUser) {
-
-        showToast(
-            "This email is already registered. Please log in.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    const button =
-        $("registerForm")
-            ?.querySelector(
-                'button[type="submit"]'
-            );
-
-    if (button) {
-
-        button.disabled = true;
-
-        button.textContent =
-            "Creating Account...";
-    }
-
-
-    try {
-
-        const passwordHash =
-            await hashPassword(
-                password
-            );
-
-
-        const user = {
-
-            id:
-                `user_${Date.now()}_${Math.random()
-                    .toString(36)
-                    .slice(2, 10)}`,
-
-            firstName,
-
-            lastName,
-
-            email,
-
-            passwordHash,
-
-            createdAt:
-                new Date().toISOString()
-        };
-
-
-        users.push(user);
-
-        saveUsers(users);
-
-
-        /*
-           Automatically sign in
-           after registration.
-        */
-
-        currentUser = {
-
-            id: user.id,
-
-            firstName:
-                user.firstName,
-
-            lastName:
-                user.lastName,
-
-            email:
-                user.email
-        };
-
-
-        saveSession(
-            currentUser
-        );
-
-
-        $("registerForm")
-            ?.reset();
-
-
-        showAppScreen();
-
-
-        showToast(
-            "Account created successfully!",
-            "success"
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Registration error:",
-            error
-        );
-
-        showToast(
-            "Could not create the account. Please try again.",
-            "error"
-        );
-
-    } finally {
-
-        if (button) {
-
-            button.disabled = false;
-
-            button.textContent =
-                "Create Account";
-        }
-    }
 }
 
 
 /* =========================================================
-   LOGIN
+   SUMMARY
 ========================================================= */
 
-async function login() {
+.summary-grid {
 
-    const email =
-        $("loginEmail")
-            ?.value
-            .trim()
-            .toLowerCase();
+    display: grid;
 
-    const password =
-        $("loginPassword")
-            ?.value || "";
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
 
+    gap: 15px;
 
-    if (!email || !password) {
+}
 
-        showToast(
-            "Please enter your email and password.",
-            "error"
-        );
+.summary-box {
 
-        return;
-    }
+    padding: 17px;
 
+    border-radius: 10px;
 
-    const button =
-        $("loginForm")
-            ?.querySelector(
-                'button[type="submit"]'
-            );
+    background: var(--surface-2);
 
-    if (button) {
+}
 
-        button.disabled = true;
+.summary-box span {
 
-        button.textContent =
-            "Logging in...";
-    }
+    display: block;
 
+    color: var(--muted);
 
-    try {
+    font-size: 12px;
 
-        const users =
-            getUsers();
+}
 
-        const user =
-            users.find(
-                item =>
-                    item.email ===
-                    email
-            );
+.summary-box strong {
 
+    display: block;
 
-        if (!user) {
+    margin-top: 5px;
 
-            showToast(
-                "Incorrect email or password.",
-                "error"
-            );
+    font-size: 22px;
 
-            return;
-        }
-
-
-        const passwordHash =
-            await hashPassword(
-                password
-            );
-
-
-        if (
-            passwordHash !==
-            user.passwordHash
-        ) {
-
-            showToast(
-                "Incorrect email or password.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        currentUser = {
-
-            id: user.id,
-
-            firstName:
-                user.firstName,
-
-            lastName:
-                user.lastName,
-
-            email:
-                user.email
-        };
-
-
-        saveSession(
-            currentUser
-        );
-
-
-        $("loginForm")
-            ?.reset();
-
-
-        showAppScreen();
-
-
-        showToast(
-            "Login successful!",
-            "success"
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Login error:",
-            error
-        );
-
-        showToast(
-            "Could not log in. Please try again.",
-            "error"
-        );
-
-    } finally {
-
-        if (button) {
-
-            button.disabled = false;
-
-            button.textContent =
-                "Login";
-        }
-    }
 }
 
 
 /* =========================================================
-   FORGOT PASSWORD
+   TOAST
 ========================================================= */
 
-async function forgotPassword() {
+.toast-container {
 
-    const email =
-        $("loginEmail")
-            ?.value
-            .trim()
-            .toLowerCase();
+    position: fixed;
 
+    right: 20px;
+    bottom: 20px;
 
-    if (!email) {
+    z-index: 300;
 
-        showToast(
-            "Enter your email address first.",
-            "warning"
-        );
+    display: flex;
 
-        $("loginEmail")
-            ?.focus();
+    flex-direction: column;
 
-        return;
+    gap: 10px;
+
+}
+
+.toast {
+
+    min-width: 280px;
+
+    max-width: 380px;
+
+    padding:
+        13px
+        16px;
+
+    border-radius: 10px;
+
+    background: #111827;
+
+    color: white;
+
+    box-shadow:
+        0 10px 30px
+        rgba(0,0,0,.2);
+
+    animation:
+        toastIn .2s ease;
+
+}
+
+.toast.success {
+    border-left: 4px solid var(--success);
+}
+
+.toast.error {
+    border-left: 4px solid var(--danger);
+}
+
+.toast.info {
+    border-left: 4px solid var(--primary);
+}
+
+@keyframes toastIn {
+
+    from {
+        transform: translateY(10px);
+        opacity: 0;
     }
 
-
-    const users =
-        getUsers();
-
-    const user =
-        users.find(
-            item =>
-                item.email === email
-        );
-
-
-    if (!user) {
-
-        showToast(
-            "No account was found with that email.",
-            "error"
-        );
-
-        return;
+    to {
+        transform: translateY(0);
+        opacity: 1;
     }
 
-
-    /*
-       Because this is a local application,
-       there is no email server.
-
-       We therefore provide a local
-       password reset flow.
-    */
-
-    const newPassword =
-        prompt(
-            "Enter your new password (minimum 6 characters):"
-        );
-
-
-    if (newPassword === null) {
-
-        return;
-    }
-
-
-    if (newPassword.length < 6) {
-
-        showToast(
-            "Password must be at least 6 characters.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    user.passwordHash =
-        await hashPassword(
-            newPassword
-        );
-
-    saveUsers(users);
-
-
-    showToast(
-        "Password changed successfully. You can now log in.",
-        "success"
-    );
 }
 
 
 /* =========================================================
-   LOGOUT
+   RESPONSIVE
 ========================================================= */
 
-function logout() {
+@media (max-width: 1100px) {
 
-    stopTimerInterval();
+    .stats-grid {
 
-    resetTimerState();
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
 
-    currentUser =
-        null;
+    }
 
-    clearSession();
+}
 
-    showAuthScreen();
+@media (max-width: 850px) {
 
-    showLogin();
+    .sidebar {
 
-    showToast(
-        "You have been logged out.",
-        "success"
-    );
+        transform:
+            translateX(-100%);
+
+        transition:
+            transform .2s;
+
+    }
+
+    .sidebar.mobile-open {
+
+        transform:
+            translateX(0);
+
+    }
+
+    .main-content {
+
+        width: 100%;
+
+        margin-left: 0;
+
+        padding: 20px;
+
+    }
+
+    .mobile-header {
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        margin-bottom: 20px;
+
+    }
+
+    .mobile-brand {
+
+        font-weight: 800;
+
+    }
+
+    .icon-btn {
+
+        border: 0;
+
+        background: var(--surface);
+
+        color: var(--text);
+
+        border:
+            1px solid var(--border);
+
+        border-radius: 8px;
+
+        padding: 8px 11px;
+
+    }
+
+}
+
+@media (max-width: 650px) {
+
+    .auth-card {
+
+        padding: 25px;
+
+    }
+
+    .form-row {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .filter-bar {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .stats-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .attendance-card {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+    }
+
+    .attendance-actions {
+
+        width: 100%;
+
+    }
+
+    .attendance-actions button {
+
+        flex: 1;
+
+    }
+
+    .section-heading {
+
+        flex-direction: column;
+
+    }
+
+    .summary-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .setting-row {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+    }
+
 }
 
 
 /* =========================================================
-   DELETE ACCOUNT
+   DARK MODE OVERRIDES
 ========================================================= */
 
-function deleteAccount() {
+body.dark .role-badge.employee {
 
-    if (!currentUser) {
+    background: rgba(59,130,246,.15);
 
-        return;
-    }
+    color: #93c5fd;
 
-
-    const confirmed =
-        confirm(
-            "Are you sure you want to permanently delete your account?\n\n" +
-            "All tasks and attendance data for this account will also be deleted."
-        );
-
-
-    if (!confirmed) {
-
-        return;
-    }
-
-
-    const userId =
-        currentUser.id;
-
-
-    let users =
-        getUsers();
-
-
-    users =
-        users.filter(
-            user =>
-                user.id !== userId
-        );
-
-
-    saveUsers(
-        users
-    );
-
-
-    localStorage.removeItem(
-        `${STORAGE.TASKS}_${userId}`
-    );
-
-    localStorage.removeItem(
-        `${STORAGE.ATTENDANCE}_${userId}`
-    );
-
-
-    stopTimerInterval();
-
-    resetTimerState();
-
-    currentUser =
-        null;
-
-    clearSession();
-
-    showAuthScreen();
-
-    showLogin();
-
-    showToast(
-        "Account deleted successfully.",
-        "success"
-    );
 }
 
+body.dark .role-badge.manager {
 
-/* =========================================================
-   SHOW AUTH SCREENS
-========================================================= */
+    background: rgba(245,158,11,.15);
 
-function showLogin() {
+    color: #fbbf24;
 
-    $("loginView")
-        ?.classList
-        .remove("hidden");
-
-    $("registerView")
-        ?.classList
-        .add("hidden");
 }
 
+body.dark .role-badge.admin {
 
-function showRegister() {
+    background: rgba(139,92,246,.15);
 
-    $("loginView")
-        ?.classList
-        .add("hidden");
+    color: #c4b5fd;
 
-    $("registerView")
-        ?.classList
-        .remove("hidden");
 }
-
-
-function showAuthScreen() {
-
-    $("authScreen")
-        ?.classList
-        .remove("hidden");
-
-    $("appScreen")
-        ?.classList
-        .add("hidden");
-}
-
-
-function showAppScreen() {
-
-    $("authScreen")
-        ?.classList
-        .add("hidden");
-
-    $("appScreen")
-        ?.classList
-        .remove("hidden");
-
-    updateUserInformation();
-
-    showSection(
-        "dashboard"
-    );
-
-    renderAll();
-}
-
-
-/* =========================================================
-   USER INFORMATION
-========================================================= */
-
-function updateUserInformation() {
-
-    if (!currentUser) {
-
-        return;
-    }
-
-
-    const fullName =
-        `${currentUser.firstName} ${currentUser.lastName}`
-            .trim();
-
-
-    if ($("sidebarUserName")) {
-
-        $("sidebarUserName").textContent =
-            fullName;
-    }
-
-
-    if ($("sidebarUserEmail")) {
-
-        $("sidebarUserEmail").textContent =
-            currentUser.email;
-    }
-
-
-    if ($("settingsUserName")) {
-
-        $("settingsUserName").textContent =
-            fullName;
-    }
-
-
-    if ($("settingsUserEmail")) {
-
-        $("settingsUserEmail").textContent =
-            currentUser.email;
-    }
-
-
-    const initial =
-        currentUser.firstName
-            ?.charAt(0)
-            .toUpperCase() ||
-        "U";
-
-
-    if ($("userAvatar")) {
-
-        $("userAvatar").textContent =
-            initial;
-    }
-
-
-    if ($("settingsUserAvatar")) {
-
-        $("settingsUserAvatar").textContent =
-            initial;
-    }
-}
-
-
-/* =========================================================
-   TASK STORAGE
-========================================================= */
-
-function getTasks() {
-
-    if (!currentUser) {
-
-        return [];
-    }
-
-    try {
-
-        return JSON.parse(
-            localStorage.getItem(
-                getUserStorageKey(
-                    STORAGE.TASKS
-                )
-            )
-        ) || [];
-
-    } catch {
-
-        return [];
-    }
-}
-
-
-function saveTasks(
-    tasks
-) {
-
-    if (!currentUser) {
-
-        return;
-    }
-
-    localStorage.setItem(
-
-        getUserStorageKey(
-            STORAGE.TASKS
-        ),
-
-        JSON.stringify(
-            tasks
-        )
-    );
-}
-
-
-/* =========================================================
-   TIMER RESET
-========================================================= */
-
-function resetTimerState() {
-
-    stopTimerInterval();
-
-    timerState = {
-
-        taskId: null,
-
-        workSeconds: 0,
-
-        breakSeconds: 0,
-
-        workStartedAt: null,
-
-        breakStartedAt: null,
-
-        timerRunning: false,
-
-        timerPaused: false,
-
-        breakRunning: false,
-
-        interval: null
-    };
-
-    updateTimerDisplay();
-
-    updateTimerButtons();
-}
-
-
-/* =========================================================
-   TIMER INTERVAL
-========================================================= */
-
-function stopTimerInterval() {
-
-    if (
-        timerState.interval
-    ) {
-
-        clearInterval(
-            timerState.interval
-        );
-
-        timerState.interval =
-            null;
-    }
-}
-
-
-function startTimerInterval() {
-
-    stopTimerInterval();
-
-    timerState.interval =
-        setInterval(
-            updateTimerDisplay,
-            250
-        );
-}
-
-
-/* =========================================================
-   TIMER WORK ACCUMULATION
-========================================================= */
-
-function accumulateCurrentWork() {
-
-    if (
-        !timerState.timerRunning ||
-        timerState.breakRunning ||
-        !timerState.workStartedAt
-    ) {
-
-        return;
-    }
-
-
-    const now =
-        Date.now();
-
-
-    const elapsed =
-        (
-            now -
-            timerState.workStartedAt
-        ) / 1000;
-
-
-    timerState.workSeconds +=
-        Math.max(
-            0,
-            elapsed
-        );
-
-
-    timerState.workStartedAt =
-        now;
-}
-
-
-function accumulateCurrentBreak() {
-
-    if (
-        !timerState.breakRunning ||
-        !timerState.breakStartedAt
-    ) {
-
-        return;
-    }
-
-
-    const now =
-        Date.now();
-
-
-    const elapsed =
-        (
-            now -
-            timerState.breakStartedAt
-        ) / 1000;
-
-
-    timerState.breakSeconds +=
-        Math.max(
-            0,
-            elapsed
-        );
-
-
-    timerState.breakStartedAt =
-        now;
-}
-
-
-/* =========================================================
-   START / RESUME TIMER
-========================================================= */
-
-function startTaskTimer() {
-
-    if (timerState.timerRunning) {
-
-        return;
-    }
-
-
-    const taskId =
-        $("editingTaskId")
-            ?.value;
-
-
-    if (!taskId) {
-
-        showToast(
-            "Save the task first before starting the timer.",
-            "warning"
-        );
-
-        return;
-    }
-
-
-    timerState.taskId =
-        taskId;
-
-
-    if (
-        timerState.breakRunning
-    ) {
-
-        accumulateCurrentBreak();
-
-        timerState.breakRunning =
-            false;
-
-        timerState.breakStartedAt =
-            null;
-    }
-
-
-    timerState.workStartedAt =
-        Date.now();
-
-
-    timerState.timerRunning =
-        true;
-
-
-    timerState.timerPaused =
-        false;
-
-
-    if ($("timerStatus")) {
-
-        $("timerStatus").textContent =
-            "Running";
-    }
-
-
-    startTimerInterval();
-
-    updateTimerDisplay();
-
-    updateTimerButtons();
-}
-
-
-/* =========================================================
-   PAUSE
-========================================================= */
-
-function pauseTaskTimer() {
-
-    if (
-        !timerState.timerRunning ||
-        timerState.breakRunning
-    ) {
-
-        return;
-    }
-
-
-    accumulateCurrentWork();
-
-
-    timerState.timerRunning =
-        false;
-
-
-    timerState.timerPaused =
-        true;
-
-
-    timerState.workStartedAt =
-        null;
-
-
-    stopTimerInterval();
-
-
-    if ($("timerStatus")) {
-
-        $("timerStatus").textContent =
-            "Paused";
-    }
-
-
-    updateTimerDisplay();
-
-    updateTimerButtons();
-}
-
-
-/* =========================================================
-   BREAK
-========================================================= */
-
-function toggleBreak() {
-
-    if (!timerState.timerRunning) {
-
-        return;
-    }
-
-
-    if (
-        !timerState.breakRunning
-    ) {
-
-        /*
-           START BREAK
-        */
-
-        accumulateCurrentWork();
-
-        timerState.workStartedAt =
-            null;
-
-        timerState.breakRunning =
-            true;
-
-        timerState.breakStartedAt =
-            Date.now();
-
-
-        if ($("timerStatus")) {
-
-            $("timerStatus").textContent =
-                "On Break";
-        }
-
-    } else {
-
-        /*
-           END BREAK
-        */
-
-        accumulateCurrentBreak();
-
-        timerState.breakRunning =
-            false;
-
-        timerState.breakStartedAt =
-            null;
-
-        timerState.workStartedAt =
-            Date.now();
-
-
-        if ($("timerStatus")) {
-
-            $("timerStatus").textContent =
-                "Running";
-        }
-    }
-
-
-    updateTimerDisplay();
-
-    updateTimerButtons();
-}
-
-
-/* =========================================================
-   STOP TIMER
-========================================================= */
-
-function stopTaskTimer() {
-
-    if (
-        !timerState.timerRunning &&
-        !timerState.breakRunning
-    ) {
-
-        return;
-    }
-
-
-    if (
-        timerState.breakRunning
-    ) {
-
-        accumulateCurrentBreak();
-
-        timerState.breakRunning =
-            false;
-
-        timerState.breakStartedAt =
-            null;
-
-    } else {
-
-        accumulateCurrentWork();
-    }
-
-
-    timerState.timerRunning =
-        false;
-
-    timerState.timerPaused =
-        false;
-
-    timerState.workStartedAt =
-        null;
-
-
-    stopTimerInterval();
-
-
-    const totalSeconds =
-        Math.floor(
-            timerState.workSeconds
-        );
-
-
-    const hours =
-        Math.floor(
-            totalSeconds / 3600
-        );
-
-
-    const minutes =
-        Math.floor(
-            (
-                totalSeconds % 3600
-            ) / 60
-        );
-
-
-    if ($("timeHours")) {
-
-        $("timeHours").value =
-            hours;
-    }
-
-
-    if ($("timeMinutes")) {
-
-        $("timeMinutes").value =
-            minutes;
-    }
-
-
-    if ($("timerStatus")) {
-
-        $("timerStatus").textContent =
-            "Stopped";
-    }
-
-
-    updateTimerDisplay();
-
-    updateTimerButtons();
-}
-
-
-/* =========================================================
-   TIMER DISPLAY
-========================================================= */
-
-function getCurrentDisplayedWorkSeconds() {
-
-    let seconds =
-        Number(
-            timerState.workSeconds
-        ) || 0;
-
-
-    if (
-        timerState.timerRunning &&
-        !timerState.breakRunning &&
-        timerState.workStartedAt
-    ) {
-
-        seconds +=
-            (
-                Date.now() -
-                timerState.workStartedAt
-            ) / 1000;
-    }
-
-
-    return Math.max(
-        0,
-        Math.floor(seconds)
-    );
-}
-
-
-function updateTimerDisplay() {
-
-    if (!$("liveTimerDisplay")) {
-
-        return;
-    }
-
-
-    $("liveTimerDisplay").textContent =
-        formatTimer(
-            getCurrentDisplayedWorkSeconds()
-        );
-}
-
-
-/* =========================================================
-   TIMER BUTTONS
-========================================================= */
-
-function updateTimerButtons() {
-
-    const running =
-        timerState.timerRunning;
-
-    const onBreak =
-        timerState.breakRunning;
-
-
-    if ($("startTimerBtn")) {
-
-        $("startTimerBtn").disabled =
-            running;
-
-        $("startTimerBtn").textContent =
-            timerState.timerPaused
-                ? "▶ Resume"
-                : "▶ Start";
-    }
-
-
-    if ($("pauseTimerBtn")) {
-
-        $("pauseTimerBtn").disabled =
-            !running ||
-            onBreak;
-    }
-
-
-    if ($("stopTimerBtn")) {
-
-        $("stopTimerBtn").disabled =
-            !running &&
-            !onBreak;
-    }
-
-
-    if ($("breakBtn")) {
-
-        $("breakBtn").disabled =
-            !running;
-
-        $("breakBtn").textContent =
-            onBreak
-                ? "▶ End Break"
-                : "☕ Break";
-    }
-}
-
-
-/* =========================================================
-   NEW TASK
-========================================================= */
-
-function openNewTaskModal() {
-
-    resetTimerState();
-
-
-    if ($("taskModalTitle")) {
-
-        $("taskModalTitle").textContent =
-            "New Task";
-    }
-
-
-    if ($("editingTaskId")) {
-
-        $("editingTaskId").value =
-            "";
-    }
-
-
-    if ($("taskTitle")) {
-
-        $("taskTitle").value =
-            "";
-    }
-
-
-    if ($("taskDescription")) {
-
-        $("taskDescription").value =
-            "";
-    }
-
-
-    if ($("taskCategory")) {
-
-        $("taskCategory").value =
-            "SEO";
-    }
-
- if ($("taskCategory")) {
-
-        $("taskCategory").value =
-            "Services+Location Pages";
-    }
-    
- if ($("taskCategory")) {
-
-        $("taskCategory").value =
-            "Location Pages";
-    }
-     if ($("taskCategory")) {
-
-        $("taskCategory").value =
-            "Services Pages";
-    }
-
-     if ($("taskCategory")) {
-
-        $("taskCategory").value =
-            "Blog";
-    }
-    if ($("timeHours")) {
-
-        $("timeHours").value =
-            0;
-    }
-
-
-    if ($("timeMinutes")) {
-
-        $("timeMinutes").value =
-            0;
-    }
-
-
-    if ($("timerStatus")) {
-
-        $("timerStatus").textContent =
-            "Ready";
-    }
-
-
-    $("taskModal")
-        ?.classList
-        .remove("hidden");
-}
-
-
-/* =========================================================
-   EDIT TASK
-========================================================= */
-
-function editTask(
-    taskId
-) {
-
-    const tasks =
-        getTasks();
-
-
-    const task =
-        tasks.find(
-            item =>
-                item.id === taskId
-        );
-
-
-    if (!task) {
-
-        return;
-    }
-
-
-    resetTimerState();
-
-
-    if ($("taskModalTitle")) {
-
-        $("taskModalTitle").textContent =
-            "Edit Task";
-    }
-
-
-    if ($("editingTaskId")) {
-
-        $("editingTaskId").value =
-            task.id;
-    }
-
-
-    if ($("taskTitle")) {
-
-        $("taskTitle").value =
-            task.title || "";
-    }
-
-
-    if ($("taskDescription")) {
-
-        $("taskDescription").value =
-            task.description || "";
-    }
-
-
-    if ($("taskCategory")) {
-
-        $("taskCategory").value =
-            task.category ||
-            "Other";
-    }
-
-
-    const totalSeconds =
-        Number(
-            task.timeSeconds
-        ) || 0;
-
-
-    if ($("timeHours")) {
-
-        $("timeHours").value =
-            Math.floor(
-                totalSeconds / 3600
-            );
-    }
-
-
-    if ($("timeMinutes")) {
-
-        $("timeMinutes").value =
-            Math.floor(
-                (
-                    totalSeconds % 3600
-                ) / 60
-            );
-    }
-
-
-    if ($("timerStatus")) {
-
-        $("timerStatus").textContent =
-            "Ready";
-    }
-
-
-    $("taskModal")
-        ?.classList
-        .remove("hidden");
-}
-
-
-/* =========================================================
-   CLOSE MODAL
-========================================================= */
-
-function closeTaskModal() {
-
-    if (
-        timerState.timerRunning ||
-        timerState.breakRunning
-    ) {
-
-        const confirmed =
-            confirm(
-                "The task timer is still running. Closing will stop the timer. Continue?"
-            );
-
-
-        if (!confirmed) {
-
-            return;
-        }
-
-
-        stopTaskTimer();
-    }
-
-
-    resetTimerState();
-
-
-    $("taskModal")
-        ?.classList
-        .add("hidden");
-}
-
-
-/* =========================================================
-   SAVE TASK
-========================================================= */
-
-function saveTask(
-    event
-) {
-
-    event.preventDefault();
-
-
-    if (!currentUser) {
-
-        showToast(
-            "Please log in first.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    if (
-        timerState.breakRunning
-    ) {
-
-        accumulateCurrentBreak();
-
-        timerState.breakRunning =
-            false;
-
-        timerState.breakStartedAt =
-            null;
-    }
-
-
-    if (
-        timerState.timerRunning
-    ) {
-
-        accumulateCurrentWork();
-
-        timerState.timerRunning =
-            false;
-
-        timerState.workStartedAt =
-            null;
-    }
-
-
-    stopTimerInterval();
-
-
-    const id =
-        $("editingTaskId")
-            ?.value ||
-        `task_${Date.now()}_${Math.random()
-            .toString(36)
-            .slice(2, 9)}`;
-
-
-    const title =
-        $("taskTitle")
-            ?.value
-            .trim() ||
-        "";
-
-
-    const description =
-        $("taskDescription")
-            ?.value
-            .trim() ||
-        "";
-
-
-    const category =
-        $("taskCategory")
-            ?.value ||
-        "Other";
-
-
-    if (!title) {
-
-        showToast(
-            "Please enter a task title.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    let timeSeconds =
-        Math.floor(
-            timerState.workSeconds
-        );
-
-
-    /*
-       If timer wasn't used,
-       use manual time.
-    */
-
-    if (
-        timeSeconds <= 0
-    ) {
-
-        const hours =
-            Math.max(
-                0,
-                Number(
-                    $("timeHours")
-                        ?.value
-                ) || 0
-            );
-
-
-        const minutes =
-            Math.max(
-                0,
-                Number(
-                    $("timeMinutes")
-                        ?.value
-                ) || 0
-            );
-
-
-        timeSeconds =
-            (
-                hours * 3600
-            ) +
-            (
-                minutes * 60
-            );
-    }
-
-
-    const tasks =
-        getTasks();
-
-
-    const existingIndex =
-        tasks.findIndex(
-            task =>
-                task.id === id
-        );
-
-
-    if (
-        existingIndex >= 0
-    ) {
-
-        const oldTask =
-            tasks[
-                existingIndex
-            ];
-
-
-        tasks[
-            existingIndex
-        ] = {
-
-            ...oldTask,
-
-            title,
-
-            description,
-
-            category,
-
-            timeSeconds,
-
-            updatedAt:
-                new Date()
-                    .toISOString()
-        };
-
-    } else {
-
-        tasks.unshift({
-
-            id,
-
-            title,
-
-            description,
-
-            category,
-
-            completed: false,
-
-            timeSeconds,
-
-            createdAt:
-                new Date()
-                    .toISOString(),
-
-            updatedAt:
-                new Date()
-                    .toISOString()
-        });
-    }
-
-
-    saveTasks(
-        tasks
-    );
-
-
-    resetTimerState();
-
-
-    $("taskModal")
-        ?.classList
-        .add("hidden");
-
-
-    renderAll();
-
-
-    showToast(
-
-        existingIndex >= 0
-            ? "Task updated successfully."
-            : "Task created successfully.",
-
-        "success"
-    );
-}
-
-
-/* =========================================================
-   COMPLETE TASK
-========================================================= */
-
-function toggleTaskComplete(
-    taskId
-) {
-
-    const tasks =
-        getTasks();
-
-
-    const task =
-        tasks.find(
-            item =>
-                item.id === taskId
-        );
-
-
-    if (!task) {
-
-        return;
-    }
-
-
-    task.completed =
-        !task.completed;
-
-
-    task.updatedAt =
-        new Date()
-            .toISOString();
-
-
-    saveTasks(
-        tasks
-    );
-
-
-    renderAll();
-
-
-    showToast(
-
-        task.completed
-            ? "Task marked as completed."
-            : "Task marked as pending.",
-
-        "success"
-    );
-}
-
-
-/* =========================================================
-   DELETE TASK
-========================================================= */
-
-function deleteTask(
-    taskId
-) {
-
-    const tasks =
-        getTasks();
-
-
-    const task =
-        tasks.find(
-            item =>
-                item.id === taskId
-        );
-
-
-    if (!task) {
-
-        return;
-    }
-
-
-    const confirmed =
-        confirm(
-            `Delete "${task.title}"?`
-        );
-
-
-    if (!confirmed) {
-
-        return;
-    }
-
-
-    const filtered =
-        tasks.filter(
-            item =>
-                item.id !== taskId
-        );
-
-
-    saveTasks(
-        filtered
-    );
-
-
-    renderAll();
-
-
-    showToast(
-        "Task deleted.",
-        "success"
-    );
-}
-
-
-/* =========================================================
-   ESCAPE HTML
-========================================================= */
-
-function escapeHTML(
-    value
-) {
-
-    return String(
-        value ?? ""
-    )
-
-        .replaceAll(
-            "&",
-            "&amp;"
-        )
-
-        .replaceAll(
-            "<",
-            "&lt;"
-        )
-
-        .replaceAll(
-            ">",
-            "&gt;"
-        )
-
-        .replaceAll(
-            '"',
-            "&quot;"
-        )
-
-        .replaceAll(
-            "'",
-            "&#039;"
-        );
-}
-
-
-/* =========================================================
-   TASK HTML
-========================================================= */
-
-function createTaskHTML(
-    task
-) {
-
-    const time =
-        formatDuration(
-            task.timeSeconds
-        );
-
-
-    const completedClass =
-        task.completed
-            ? "completed-task"
-            : "";
-
-
-    const status =
-        task.completed
-            ? "Completed"
-            : "Pending";
-
-
-    return `
-
-        <div class="task-card ${completedClass}">
-
-            <div class="task-main">
-
-                <div class="task-title">
-                    ${escapeHTML(
-                        task.title
-                    )}
-                </div>
-
-
-                ${
-                    task.description
-                        ? `
-                            <p class="task-description">
-                                ${escapeHTML(
-                                    task.description
-                                )}
-                            </p>
-                        `
-                        : ""
-                }
-
-
-                <div class="task-meta">
-
-                    <span class="task-tag">
-                        ${escapeHTML(
-                            task.category ||
-                            "Other"
-                        )}
-                    </span>
-
-
-                    <span class="task-tag">
-                        ⏱ ${time}
-                    </span>
-
-
-                    <span class="task-tag">
-                        ${status}
-                    </span>
-
-
-                    <span class="task-tag">
-                        ${formatDate(
-                            task.createdAt
-                        )}
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <div class="task-actions">
-
-                <button
-                    type="button"
-                    class="task-action-btn"
-                    onclick="toggleTaskComplete('${task.id}')"
-                    title="${
-                        task.completed
-                            ? "Mark pending"
-                            : "Complete task"
-                    }"
-                >
-                    ${
-                        task.completed
-                            ? "↩"
-                            : "✓"
-                    }
-                </button>
-
-
-                <button
-                    type="button"
-                    class="task-action-btn"
-                    onclick="editTask('${task.id}')"
-                    title="Edit task"
-                >
-                    ✏
-                </button>
-
-
-                <button
-                    type="button"
-                    class="task-action-btn delete"
-                    onclick="deleteTask('${task.id}')"
-                    title="Delete task"
-                >
-                    🗑
-                </button>
-
-            </div>
-
-        </div>
-    `;
-}
-
-
-/* =========================================================
-   RENDER TASKS
-========================================================= */
-
-function renderTasks() {
-
-    const container =
-        $("tasksList");
-
-
-    if (!container) {
-
-        return;
-    }
-
-
-    let tasks =
-        getTasks();
-
-
-    const filter =
-        $("taskFilter")
-            ?.value ||
-        "all";
-
-
-    const search =
-        $("taskSearch")
-            ?.value
-            .trim()
-            .toLowerCase() ||
-        "";
-
-
-    if (
-        filter === "today"
-    ) {
-
-        const today =
-            getDateKey();
-
-
-        tasks =
-            tasks.filter(
-                task =>
-                    getDateKey(
-                        new Date(
-                            task.createdAt
-                        )
-                    ) === today
-            );
-    }
-
-
-    if (
-        filter === "pending"
-    ) {
-
-        tasks =
-            tasks.filter(
-                task =>
-                    !task.completed
-            );
-    }
-
-
-    if (
-        filter === "completed"
-    ) {
-
-        tasks =
-            tasks.filter(
-                task =>
-                    task.completed
-            );
-    }
-
-
-    if (search) {
-
-        tasks =
-            tasks.filter(
-                task => {
-
-                    const text =
-                        `${task.title} ${task.description} ${task.category}`
-                            .toLowerCase();
-
-
-                    return text.includes(
-                        search
-                    );
-                }
-            );
-    }
-
-
-    if (!tasks.length) {
-
-        container.innerHTML = `
-
-            <div class="empty-state">
-
-                <div>
-                    📝
-                </div>
-
-                <h3>
-                    No matching tasks
-                </h3>
-
-                <p>
-                    Try creating a new task or changing your filters.
-                </p>
-
-            </div>
-        `;
-
-        return;
-    }
-
-
-    container.innerHTML =
-        tasks
-            .map(
-                createTaskHTML
-            )
-            .join("");
-}
-
-
-/* =========================================================
-   DASHBOARD
-========================================================= */
-
-function renderDashboard() {
-
-    const tasks =
-        getTasks();
-
-
-    const today =
-        getDateKey();
-
-
-    const todayTasks =
-        tasks.filter(
-            task =>
-                getDateKey(
-                    new Date(
-                        task.createdAt
-                    )
-                ) === today
-        );
-
-
-    const completed =
-        tasks.filter(
-            task =>
-                task.completed
-        );
-
-
-    const todaySeconds =
-        todayTasks.reduce(
-            (
-                sum,
-                task
-            ) =>
-                sum +
-                (
-                    Number(
-                        task.timeSeconds
-                    ) || 0
-                ),
-            0
-        );
-
-
-    if ($("todayTasksCount")) {
-
-        $("todayTasksCount").textContent =
-            todayTasks.length;
-    }
-
-
-    if ($("completedTasksCount")) {
-
-        $("completedTasksCount").textContent =
-            completed.length;
-    }
-
-
-    if ($("todayTaskTime")) {
-
-        $("todayTaskTime").textContent =
-            formatDuration(
-                todaySeconds
-            );
-    }
-
-
-    const dashboardList =
-        $("dashboardTasksList");
-
-
-    if (!dashboardList) {
-
-        return;
-    }
-
-
-    const recent =
-        tasks.slice(
-            0,
-            5
-        );
-
-
-    if (!recent.length) {
-
-        dashboardList.innerHTML = `
-
-            <div class="empty-state">
-
-                <div>
-                    📝
-                </div>
-
-                <h3>
-                    No tasks yet
-                </h3>
-
-                <p>
-                    Create your first task to get started.
-                </p>
-
-            </div>
-        `;
-
-        return;
-    }
-
-
-    dashboardList.innerHTML =
-        recent
-            .map(
-                createTaskHTML
-            )
-            .join("");
-}
-
-
-function updateDashboard() {
-
-    renderDashboard();
-}
-
-
-/* =========================================================
-   REPORTS
-========================================================= */
-
-function renderReports() {
-
-    const tasks =
-        getTasks();
-
-
-    const completed =
-        tasks.filter(
-            task =>
-                task.completed
-        );
-
-
-    const totalSeconds =
-        tasks.reduce(
-            (
-                sum,
-                task
-            ) =>
-                sum +
-                (
-                    Number(
-                        task.timeSeconds
-                    ) || 0
-                ),
-            0
-        );
-
-
-    if ($("reportTotalTasks")) {
-
-        $("reportTotalTasks").textContent =
-            tasks.length;
-    }
-
-
-    if ($("reportCompletedTasks")) {
-
-        $("reportCompletedTasks").textContent =
-            completed.length;
-    }
-
-
-    if ($("reportTotalTime")) {
-
-        $("reportTotalTime").textContent =
-            formatDuration(
-                totalSeconds
-            );
-    }
-
-
-    const tbody =
-        $("reportsTableBody");
-
-
-    if (!tbody) {
-
-        return;
-    }
-
-
-    if (!tasks.length) {
-
-        tbody.innerHTML = `
-
-            <tr>
-
-                <td
-                    colspan="5"
-                    style="text-align:center;"
-                >
-                    No task data available.
-                </td>
-
-            </tr>
-        `;
-
-        return;
-    }
-
-
-    tbody.innerHTML =
-        tasks
-            .map(
-                task => `
-
-                    <tr>
-
-                        <td>
-                            ${escapeHTML(
-                                task.title
-                            )}
-                        </td>
-
-                        <td>
-                            ${escapeHTML(
-                                task.category ||
-                                "Other"
-                            )}
-                        </td>
-
-                        <td>
-                            ${
-                                task.completed
-                                    ? "Completed"
-                                    : "Pending"
-                            }
-                        </td>
-
-                        <td>
-                            ${formatDuration(
-                                task.timeSeconds
-                            )}
-                        </td>
-
-                        <td>
-                            ${formatDate(
-                                task.createdAt
-                            )}
-                        </td>
-
-                    </tr>
-                `
-            )
-            .join("");
-}
-
-
-/* =========================================================
-   RENDER ALL
-========================================================= */
-
-function renderAll() {
-
-    if (!currentUser) {
-
-        return;
-    }
-
-
-    updateUserInformation();
-
-    updateAttendanceDisplay();
-
-    renderDashboard();
-
-    renderTasks();
-
-    renderReports();
-}
-
-
-/* =========================================================
-   NAVIGATION
-========================================================= */
-
-function showSection(
-    sectionName
-) {
-
-    document
-        .querySelectorAll(
-            ".page-section"
-        )
-        .forEach(
-            section =>
-                section.classList.remove(
-                    "active"
-                )
-        );
-
-
-    const section =
-        $(`${sectionName}Section`);
-
-
-    if (section) {
-
-        section.classList.add(
-            "active"
-        );
-    }
-
-
-    document
-        .querySelectorAll(
-            ".nav-btn"
-        )
-        .forEach(
-            button => {
-
-                button.classList.toggle(
-
-                    "active",
-
-                    button.dataset.section ===
-                    sectionName
-                );
-            }
-        );
-
-
-    const titles = {
-
-        dashboard: {
-
-            title:
-                "Dashboard",
-
-            subtitle:
-                "Track your work and attendance"
-        },
-
-        tasks: {
-
-            title:
-                "Tasks",
-
-            subtitle:
-                "Manage and track your work"
-        },
-
-        reports: {
-
-            title:
-                "Reports",
-
-            subtitle:
-                "Review your work activity"
-        },
-
-        settings: {
-
-            title:
-                "Settings",
-
-            subtitle:
-                "Manage your account and preferences"
-        }
-    };
-
-
-    const info =
-        titles[
-            sectionName
-        ];
-
-
-    if (info) {
-
-        if ($("pageTitle")) {
-
-            $("pageTitle").textContent =
-                info.title;
-        }
-
-
-        if ($("pageSubtitle")) {
-
-            $("pageSubtitle").textContent =
-                info.subtitle;
-        }
-    }
-
-
-    if (
-        sectionName ===
-        "dashboard"
-    ) {
-
-        renderDashboard();
-    }
-
-
-    if (
-        sectionName ===
-        "tasks"
-    ) {
-
-        renderTasks();
-    }
-
-
-    if (
-        sectionName ===
-        "reports"
-    ) {
-
-        renderReports();
-    }
-}
-
-
-/* =========================================================
-   THEME
-========================================================= */
-
-function applyTheme(
-    theme
-) {
-
-    const normalized =
-        theme === "dark"
-            ? "dark"
-            : "light";
-
-
-    document.body.classList.toggle(
-
-        "dark",
-
-        normalized ===
-        "dark"
-    );
-
-
-    localStorage.setItem(
-        STORAGE.THEME,
-        normalized
-    );
-
-
-    updateThemeButtons();
-}
-
-
-function toggleTheme() {
-
-    const isDark =
-        document.body.classList.contains(
-            "dark"
-        );
-
-
-    applyTheme(
-        isDark
-            ? "light"
-            : "dark"
-    );
-}
-
-
-function updateThemeButtons() {
-
-    const isDark =
-        document.body.classList.contains(
-            "dark"
-        );
-
-
-    if ($("themeToggleBtn")) {
-
-        $("themeToggleBtn").textContent =
-            isDark
-                ? "☀️"
-                : "🌙";
-
-        $("themeToggleBtn").title =
-            isDark
-                ? "Switch to light mode"
-                : "Switch to dark mode";
-    }
-
-
-    if ($("settingsThemeBtn")) {
-
-        $("settingsThemeBtn").textContent =
-            isDark
-                ? "Switch to Light Mode"
-                : "Switch to Dark Mode";
-    }
-}
-
-
-function initializeTheme() {
-
-    const saved =
-        localStorage.getItem(
-            STORAGE.THEME
-        );
-
-
-    if (
-        saved === "dark" ||
-        saved === "light"
-    ) {
-
-        applyTheme(
-            saved
-        );
-
-        return;
-    }
-
-
-    const prefersDark =
-        window.matchMedia &&
-        window.matchMedia(
-            "(prefers-color-scheme: dark)"
-        ).matches;
-
-
-    applyTheme(
-        prefersDark
-            ? "dark"
-            : "light"
-    );
-}
-
-
-/* =========================================================
-   EVENT LISTENERS
-========================================================= */
-
-function initializeEventListeners() {
-
-
-    /* LOGIN */
-
-    $("loginForm")
-        ?.addEventListener(
-            "submit",
-            event => {
-
-                event.preventDefault();
-
-                login();
-            }
-        );
-
-
-    /* REGISTER */
-
-    $("registerForm")
-        ?.addEventListener(
-            "submit",
-            event => {
-
-                event.preventDefault();
-
-                register();
-            }
-        );
-
-
-    /* AUTH SWITCH */
-
-    $("showRegisterBtn")
-        ?.addEventListener(
-            "click",
-            showRegister
-        );
-
-
-    $("showLoginBtn")
-        ?.addEventListener(
-            "click",
-            showLogin
-        );
-
-
-    /* FORGOT PASSWORD */
-
-    $("forgotPasswordBtn")
-        ?.addEventListener(
-            "click",
-            forgotPassword
-        );
-
-
-    /* LOGOUT */
-
-    $("logoutBtn")
-        ?.addEventListener(
-            "click",
-            logout
-        );
-
-
-    /* NAVIGATION */
-
-    document
-        .querySelectorAll(
-            ".nav-btn"
-        )
-        .forEach(
-            button => {
-
-                button.addEventListener(
-                    "click",
-                    () =>
-                        showSection(
-                            button.dataset.section
-                        )
-                );
-            }
-        );
-
-
-    /* ATTENDANCE */
-
-    $("timeInBtn")
-        ?.addEventListener(
-            "click",
-            timeIn
-        );
-
-
-    $("timeOutBtn")
-        ?.addEventListener(
-            "click",
-            timeOut
-        );
-
-
-    /* VIEW ALL */
-
-    $("viewAllTasksBtn")
-        ?.addEventListener(
-            "click",
-            () =>
-                showSection(
-                    "tasks"
-                )
-        );
-
-
-    /* NEW TASK */
-
-    $("newTaskBtn")
-        ?.addEventListener(
-            "click",
-            openNewTaskModal
-        );
-
-
-    /* TASK FORM */
-
-    $("taskForm")
-        ?.addEventListener(
-            "submit",
-            saveTask
-        );
-
-
-    /* CLOSE MODAL */
-
-    $("closeTaskModalBtn")
-        ?.addEventListener(
-            "click",
-            closeTaskModal
-        );
-
-
-    $("cancelTaskBtn")
-        ?.addEventListener(
-            "click",
-            closeTaskModal
-        );
-
-
-    /* TIMER */
-
-    $("startTimerBtn")
-        ?.addEventListener(
-            "click",
-            startTaskTimer
-        );
-
-
-    $("pauseTimerBtn")
-        ?.addEventListener(
-            "click",
-            pauseTaskTimer
-        );
-
-
-    $("stopTimerBtn")
-        ?.addEventListener(
-            "click",
-            stopTaskTimer
-        );
-
-
-    $("breakBtn")
-        ?.addEventListener(
-            "click",
-            toggleBreak
-        );
-
-
-    /* SEARCH */
-
-    $("taskSearch")
-        ?.addEventListener(
-            "input",
-            renderTasks
-        );
-
-
-    /* FILTER */
-
-    $("taskFilter")
-        ?.addEventListener(
-            "change",
-            renderTasks
-        );
-
-
-    /* THEME */
-
-    $("themeToggleBtn")
-        ?.addEventListener(
-            "click",
-            toggleTheme
-        );
-
-
-    $("settingsThemeBtn")
-        ?.addEventListener(
-            "click",
-            toggleTheme
-        );
-
-
-    /* DELETE ACCOUNT */
-
-    $("deleteAccountBtn")
-        ?.addEventListener(
-            "click",
-            deleteAccount
-        );
-
-
-    /* MODAL BACKDROP */
-
-    $("taskModal")
-        ?.addEventListener(
-            "click",
-            event => {
-
-                if (
-                    event.target ===
-                    $("taskModal")
-                ) {
-
-                    closeTaskModal();
-                }
-            }
-        );
-
-
-    /* ESCAPE */
-
-    document.addEventListener(
-        "keydown",
-        event => {
-
-            if (
-                event.key ===
-                "Escape" &&
-                !$("taskModal")
-                    ?.classList
-                    .contains("hidden")
-            ) {
-
-                closeTaskModal();
-            }
-        }
-    );
-}
-
-
-/* =========================================================
-   INITIALIZE
-========================================================= */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-
-        initializeTheme();
-
-        initializeEventListeners();
-
-
-        /*
-           Restore previous session.
-        */
-
-        const session =
-            loadSession();
-
-
-        if (session) {
-
-            currentUser =
-                session;
-
-            showAppScreen();
-
-        } else {
-
-            showAuthScreen();
-
-            showLogin();
-        }
-    }
-);
-
-
-/* =========================================================
-   WINDOW FUNCTIONS
-========================================================= */
-
-window.login =
-    login;
-
-window.register =
-    register;
-
-window.logout =
-    logout;
-
-window.forgotPassword =
-    forgotPassword;
-
-window.deleteAccount =
-    deleteAccount;
-
-window.showLogin =
-    showLogin;
-
-window.showRegister =
-    showRegister;
-
-window.showSection =
-    showSection;
-
-window.timeIn =
-    timeIn;
-
-window.timeOut =
-    timeOut;
-
-window.toggleTheme =
-    toggleTheme;
-
-window.openNewTaskModal =
-    openNewTaskModal;
-
-window.editTask =
-    editTask;
-
-window.deleteTask =
-    deleteTask;
-
-window.toggleTaskComplete =
-    toggleTaskComplete;
-
-window.startTaskTimer =
-    startTaskTimer;
-
-window.pauseTaskTimer =
-    pauseTaskTimer;
-
-window.stopTaskTimer =
-    stopTaskTimer;
-
-window.toggleBreak =
-    toggleBreak;
-
-window.closeTaskModal =
-    closeTaskModal;
